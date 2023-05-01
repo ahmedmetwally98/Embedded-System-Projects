@@ -1,0 +1,21 @@
+/* 
+ * File:   Ultrasonic.h
+ */
+
+#ifndef ULTRASONIC_H
+#define	ULTRASONIC_H
+
+#include "Ultrasonic_Cfg.h"
+
+#define SOUND_SPEED_CM_SECOND       34000
+
+typedef struct{
+	gpio_config_pin_t Trigger_Pin;
+	gpio_config_pin_t Echo_Pin;
+}ultrasonic_t;
+
+Std_ReturnType Ultrasonic_Init(const ultrasonic_t *_config);
+Std_ReturnType Ultrasonic_TriggerPin(const ultrasonic_t *_config);
+
+#endif	/* ULTRASONIC_H */
+

@@ -1,0 +1,87 @@
+/*
+ * icu.h
+ *
+ *  Created on: Apr 13, 2023
+ *      Author: ahmed
+ */
+
+#ifndef ICU_ICU_H_
+#define ICU_ICU_H_
+
+
+/* -------------------- Includes -------------------- */
+#include "../../common_macros.h"
+#include "../../std_types.h"
+#include "../../micro_config.h"
+#include "../Interrupt_Driver/INT_Internal.h"
+
+#if ICU_MODULE == MODULE_ENABLE
+/* -------------------- MACRO Definitions -------------------- */
+#define ICU_NOISE_CANCEL_ENABLE					1
+#define ICU_NOISE_CANCEL_DISABLE				0
+
+/* -------------------- MACRO Functions Definitions -------------------- */
+
+/* -------------------- Data Type Declarations -------------------- */
+typedef enum
+{
+	NO_CLOCK,
+	F_CPU_CLOCK,
+	F_CPU_8,
+	F_CPU_64,
+	F_CPU_256,
+	F_CPU_1024
+}e_icu_Clock_t;
+
+typedef enum
+{
+	ICU_FALLING_EDGE_DETECT = 0,
+	ICU_RISING_EDGE_DETECT = 1
+}e_icu_EdgeType_t;
+
+typedef struct
+{
+	void(*icu_interruptHandlerNotify)(void);
+	e_icu_Clock_t timer1Clock;
+	e_icu_EdgeType_t icu_edgeSelect;		/* 1 -> rising edge, 0 -> falling edge */
+	uint8 icu_noiseCancel;
+}icu_ConfigType;
+/* -------------------- Software Interfaces -------------------- */
+/*
+ * Description : Function to initialize the ICU driver
+ * 	1. Set the required edge detection.
+ * 	2. Enable the Input Capture Interrupt.
+ * 	3. Initialize Timer1 Registers
+ * 	4. Set the required clock.
+ */
+Std_ReturnType ICU_init(const icu_ConfigType* a_icuObj_ptr);
+
+/*
+ * Description: Function to set the Call Back function address.
+ */
+Std_ReturnType ICU_setCallBack(void(*a_ptr)(void));
+
+/*
+ * Description: Function to set the required edge detection.
+ */
+void ICU_setEdgeDetectionType(const e_icu_EdgeType_t a_icuEdgeType);
+
+/*
+ * Description: Function to get the Timer1 Value when the input is captured
+ *              The value stored at Input Capture Register ICR1
+ */
+Std_ReturnType ICU_getInputCaptureValue(uint16* a_icuData);
+
+/*
+ * Description: Function to clear the Timer1 Value to start count from ZERO
+ */
+void ICU_clearTimerValue(void);
+
+/*
+ * Description: Function to disable the Timer1 to stop the ICU Driver
+ */
+void ICU_DeInit(void);
+
+#endif
+
+#endif /* ICU_ICU_H_ */

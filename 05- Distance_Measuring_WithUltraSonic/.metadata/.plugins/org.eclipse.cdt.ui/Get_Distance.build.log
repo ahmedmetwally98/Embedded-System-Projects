@@ -1,0 +1,76 @@
+05:37:53 **** Incremental Build of configuration Debug for project Get_Distance ****
+make all 
+Building file: ../MCAL_init/ICU/icu.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/ICU/icu.d" -MT"MCAL_init/ICU/icu.o" -c -o "MCAL_init/ICU/icu.o" "../MCAL_init/ICU/icu.c"
+In file included from ../MCAL_init/ICU/../../micro_config.h:21,
+                 from ../MCAL_init/ICU/icu.h:15,
+                 from ../MCAL_init/ICU/icu.c:9:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../MCAL_init/ICU/icu.c
+ 
+Building file: ../MCAL_init/mcal_init.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/mcal_init.d" -MT"MCAL_init/mcal_init.o" -c -o "MCAL_init/mcal_init.o" "../MCAL_init/mcal_init.c"
+In file included from ../MCAL_init/ICU/../../micro_config.h:21,
+                 from ../MCAL_init/ICU/icu.h:15,
+                 from ../MCAL_init/mcal_init.h:12,
+                 from ../MCAL_init/mcal_init.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../MCAL_init/mcal_init.c
+ 
+Building file: ../HAL_init/Ultrasonic/Ultrasonic.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"HAL_init/Ultrasonic/Ultrasonic.d" -MT"HAL_init/Ultrasonic/Ultrasonic.o" -c -o "HAL_init/Ultrasonic/Ultrasonic.o" "../HAL_init/Ultrasonic/Ultrasonic.c"
+In file included from ../HAL_init/Ultrasonic/../../MCAL_init/DIO_Driver/../../micro_config.h:21,
+                 from ../HAL_init/Ultrasonic/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../HAL_init/Ultrasonic/Ultrasonic.h:8,
+                 from ../HAL_init/Ultrasonic/Ultrasonic.c:2:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../HAL_init/Ultrasonic/Ultrasonic.c
+ 
+Building file: ../APP_layer/App.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"APP_layer/App.d" -MT"APP_layer/App.o" -c -o "APP_layer/App.o" "../APP_layer/App.c"
+In file included from ../APP_layer/../HAL_init/ecu_LCD/../../MCAL_init/DIO_Driver/../../micro_config.h:21,
+                 from ../APP_layer/../HAL_init/ecu_LCD/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../APP_layer/../HAL_init/ecu_LCD/LCD.h:13,
+                 from ../APP_layer/../HAL_init/hal_init.h:11,
+                 from ../APP_layer/App.h:11,
+                 from ../APP_layer/App.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+../APP_layer/App.c: In function 'ICU_callBackNotify':
+../APP_layer/App.c:50: warning: passing argument 1 of 'ICU_getInputCaptureValue' discards qualifiers from pointer target type
+Finished building: ../APP_layer/App.c
+ 
+Building target: Get_Distance.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,Get_Distance.map -mmcu=atmega16 -o "Get_Distance.elf"  ./MCAL_init/Interrupt_Driver/INT_External.o  ./MCAL_init/ICU/icu.o  ./MCAL_init/DIO_Driver/hal_DIO.o  ./MCAL_init/mcal_init.o  ./HAL_init/ecu_LCD/LCD.o  ./HAL_init/Ultrasonic/Ultrasonic.o  ./HAL_init/hal_init.o  ./APP_layer/App.o   
+Finished building target: Get_Distance.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S Get_Distance.elf  >"Get_Distance.lss"
+Finished building: Get_Distance.lss
+ 
+Create Flash image (ihex format)
+avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex Get_Distance.elf  "Get_Distance.hex"
+Finished building: Get_Distance.hex
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega16 Get_Distance.elf
+AVR Memory Usage
+----------------
+Device: atmega16
+
+Program:   13086 bytes (79.9% Full)
+(.text + .data + .bootloader)
+
+Data:        357 bytes (34.9% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+05:37:55 Build Finished. 0 errors, 5 warnings. (took 1s.675ms)
+
