@@ -1,0 +1,22 @@
+/*
+ * App.h
+ *
+ *  Created on: Mar 14, 2023
+ *      Author: ahmed
+ */
+
+#ifndef APP_H_
+#define APP_H_
+
+#include "../HAL_init/hal_init.h"
+#include "../MCAL_init/mcal_init.h"
+
+
+extern char_lcd_t g_lcdObj_4bitMode;
+extern keypad_matrix_t g_keypadObj;
+/* ------------------- Application Functions Declarations ----------------------*/
+void application_initialize(void);
+
+
+
+#endif /* APP_H_ */

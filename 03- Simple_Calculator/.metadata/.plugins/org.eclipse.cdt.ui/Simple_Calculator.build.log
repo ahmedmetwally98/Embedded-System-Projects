@@ -1,0 +1,49 @@
+06:26:44 **** Incremental Build of configuration Debug for project Simple_Calculator ****
+make all 
+Building file: ../APP_layer/App.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=1000000UL -MMD -MP -MF"APP_layer/App.d" -MT"APP_layer/App.o" -c -o "APP_layer/App.o" "../APP_layer/App.c"
+In file included from ../APP_layer/../HAL_init/Keypad/../../MCAL_init/DIO_Driver/../../micro_config.h:21,
+                 from ../APP_layer/../HAL_init/Keypad/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../APP_layer/../HAL_init/Keypad/Keypad_matrix.h:12,
+                 from ../APP_layer/../HAL_init/hal_init.h:11,
+                 from ../APP_layer/App.h:11,
+                 from ../APP_layer/App.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+../APP_layer/App.c: In function 'interrupt_callBackNotify':
+../APP_layer/App.c:82: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c: In function 'show_error_msg':
+../APP_layer/App.c:159: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:163: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c: In function 'show_operation_result':
+../APP_layer/App.c:168: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:169: warning: passing argument 2 of 'lcd_4bit_send_string_data' discards qualifiers from pointer target type
+Finished building: ../APP_layer/App.c
+ 
+Building target: Simple_Calculator.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,Simple_Calculator.map -mmcu=atmega16 -o "Simple_Calculator.elf"  ./MCAL_init/Interrupt_Driver/INT_External.o  ./MCAL_init/DIO_Driver/hal_DIO.o  ./MCAL_init/mcal_init.o  ./HAL_init/ecu_LCD/LCD.o  ./HAL_init/Keypad/Keypad_matrix.o  ./HAL_init/hal_init.o  ./APP_layer/App.o   
+Finished building target: Simple_Calculator.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S Simple_Calculator.elf  >"Simple_Calculator.lss"
+Finished building: Simple_Calculator.lss
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega16 Simple_Calculator.elf
+AVR Memory Usage
+----------------
+Device: atmega16
+
+Program:   12618 bytes (77.0% Full)
+(.text + .data + .bootloader)
+
+Data:        195 bytes (19.0% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+06:26:45 Build Finished. 0 errors, 6 warnings. (took 1s.66ms)
+

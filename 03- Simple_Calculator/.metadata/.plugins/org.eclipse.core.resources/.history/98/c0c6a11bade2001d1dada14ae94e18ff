@@ -1,0 +1,27 @@
+/*
+ * hal_init.c
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#include "hal_init.h"
+
+/* ---------------------- Global variables ----------------------- */
+
+keypad_matrix_t g_keypadObj = {
+
+};
+
+char_lcd_t g_lcdObj = {
+	    .RS_pin={PORT_C, GPIO_PIN6, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .E_pin={PORT_C, GPIO_PIN1, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[0]={PORT_C, GPIO_PIN2, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[1]={PORT_C, GPIO_PIN3, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[2]={PORT_C, GPIO_PIN4, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[3]={PORT_C, GPIO_PIN5, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+};
+
+char_lcd_t lcd_4bit = {
+
+};

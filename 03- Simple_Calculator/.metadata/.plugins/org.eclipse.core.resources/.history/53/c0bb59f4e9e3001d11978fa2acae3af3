@@ -1,0 +1,14 @@
+/*
+ * mcal_init.c
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#include "mcal_init.h"
+
+Std_ReturnType mcal_init(void)
+{
+	ret = Interrupt_INTx_Init(&g_int0Obj);
+	return ret;
+}

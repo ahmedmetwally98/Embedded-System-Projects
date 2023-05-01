@@ -1,0 +1,44 @@
+/*
+ * hal_init.c
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#include "hal_init.h"
+#include "ecu_LCD/LCD.h"
+#include "Keypad/Keypad_matrix.h"
+/* ---------------------- Global variables ----------------------- */
+
+const keypad_matrix_t g_keypadObj = {
+	    .keypad_rows_pins[0]={PORT_C,GPIO_PIN0,GPIO_DIRECTION_OUTPUT,GPIO_LOW},
+	    .keypad_rows_pins[1]={PORT_C,GPIO_PIN1,GPIO_DIRECTION_OUTPUT,GPIO_LOW},
+	    .keypad_rows_pins[2]={PORT_C,GPIO_PIN2,GPIO_DIRECTION_OUTPUT,GPIO_LOW},
+	    .keypad_rows_pins[3]={PORT_C,GPIO_PIN3,GPIO_DIRECTION_OUTPUT,GPIO_LOW},
+	    .keypad_cols_pins[0]={PORT_C,GPIO_PIN4,GPIO_DIRECTION_INPUT},
+	    .keypad_cols_pins[1]={PORT_C,GPIO_PIN5,GPIO_DIRECTION_INPUT},
+	    .keypad_cols_pins[2]={PORT_C,GPIO_PIN6,GPIO_DIRECTION_INPUT},
+	    .keypad_cols_pins[3]={PORT_C,GPIO_PIN7,GPIO_DIRECTION_INPUT},
+};
+
+const char_lcd_t g_lcdObj_4bitMode = {
+	    .RS_pin={PORT_B, GPIO_PIN0, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .E_pin={PORT_B, GPIO_PIN1, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[0]={PORT_B, GPIO_PIN2, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[1]={PORT_B, GPIO_PIN3, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[2]={PORT_B, GPIO_PIN4, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[3]={PORT_B, GPIO_PIN5, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+};
+
+Std_ReturnType ret = E_OK;
+
+Std_ReturnType HAL_init(void)
+{
+	ret = lcd_4bit_initialize(&g_lcdObj_4bitMode);
+	ret = Keypad_init(&g_keypadObj);
+
+	/* display welcome message */
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 1, 2,  "Simple Calculator");
+	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, DDRAM_START_ADDRESS + ROW2_OFFSET);
+	return ret;
+}

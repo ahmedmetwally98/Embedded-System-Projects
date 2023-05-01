@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Simple_Calculator/HAL&apos; to &apos;HAL_init&apos;" description="Rename resource &apos;HAL&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="HAL" name="HAL_init" stamp="1682343829041" updateReferences="true"/>
+</session>

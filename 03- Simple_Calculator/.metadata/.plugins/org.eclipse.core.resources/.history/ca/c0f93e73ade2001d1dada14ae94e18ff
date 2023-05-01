@@ -1,0 +1,16 @@
+/*
+ * hal_init.h
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#ifndef HAL_INIT_HAL_INIT_H_
+#define HAL_INIT_HAL_INIT_H_
+
+#include "../DIO_Driver/ecu_LCD/LCD.h"
+#include "../DIO_Driver/Keypad/Keypad_matrix.h"
+
+
+
+#endif /* HAL_INIT_HAL_INIT_H_ */

@@ -1,0 +1,20 @@
+/*
+ * App.h
+ *
+ *  Created on: Mar 14, 2023
+ *      Author: ahmed
+ */
+
+#ifndef APP_H_
+#define APP_H_
+
+#include "common_macros.h"
+#include "micro_config.h"
+#include "std_types.h"
+/* ------------------- Application Functions Declarations ----------------------*/
+void application_initialize(void);
+
+
+
+
+#endif /* APP_H_ */

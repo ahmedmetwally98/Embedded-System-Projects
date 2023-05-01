@@ -1,0 +1,12 @@
+/*
+ * hal_init.c
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#include "hal_init.h"
+
+/* ---------------------- Global variables ----------------------- */
+
+keypad_matrix_t g_keypadObj;
