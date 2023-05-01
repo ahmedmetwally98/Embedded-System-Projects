@@ -1,0 +1,74 @@
+/*
+ * adc.h
+ *
+ *  Created on: Apr 12, 2023
+ *      Author: ahmed
+ */
+
+#ifndef ADC_ADC_H_
+#define ADC_ADC_H_
+
+
+/* -------------------- Includes -------------------- */
+#include "../../common_macros.h"
+#include "../../std_types.h"
+#include "../../micro_config.h"
+#include "../Interrupt_Driver/INT_Internal.h"
+
+#if ADC_MODULE == MODULE_ENABLE
+/* -------------------- MACRO Definitions -------------------- */
+#define ADC_SINGLE_CONVERSION_MODE				0
+#define ADC_AUTO_TRIGGER_FREE_RUNNING_MODE		1u
+#define ADC_AUTO_TRIGGER_INT0_MODE				2u
+#define ADC_AUTO_TRIGGER_CAP_EVENT_MODE			3u
+
+#define ADC_CHANNEL_0							0
+#define ADC_CHANNEL_1							1u
+#define ADC_CHANNEL_2							2u
+#define ADC_CHANNEL_3							3u
+#define ADC_CHANNEL_4							4u
+#define ADC_CHANNEL_5							5u
+#define ADC_CHANNEL_6							6u
+#define ADC_CHANNEL_7							7u
+
+#define ADC_REF_VOLTAGE_AREF					0
+#define ADC_REF_VOLTAGE_AVCC					1
+#define ADC_REF_VOLTAGE_INTERNAL				2
+
+#define ADC_RIGHT_ADJUST						0
+#define ADC_LEFT_ADJUST							1
+
+#define ADC_PRESCALER_DIV_BY_2					1
+#define ADC_PRESCALER_DIV_BY_4					2
+#define ADC_PRESCALER_DIV_BY_8					3
+#define ADC_PRESCALER_DIV_BY_16					4
+#define ADC_PRESCALER_DIV_BY_32					5
+#define ADC_PRESCALER_DIV_BY_64					6
+#define ADC_PRESCALER_DIV_BY_128				7
+/* -------------------- MACRO Functions Definitions -------------------- */
+
+/* -------------------- Data Type Declarations -------------------- */
+typedef struct{
+#if ADC_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+	void (*ADC_interruptHandlerNotify)(void);
+#endif
+	uint8 adc_inetrruptEnable			:1;		// 0-> interrupt disabled, 1-> interrupt enabled
+	uint8 adc_mode						:1;		// 0-> single conversion mode(default), 1-> Free running mode
+	uint8 adc_voltRef					:2;		// internal VREF is the default
+	uint8 adc_channel					:3;		// ADC_channel_0 is the default channel.
+	uint8 adc_resultAdjustfy			:1;		// 0-> right adjusted (default), 1-> left adjusted.
+
+	uint8 adc_preScalerValue			:3;		// F_CLOCK/2 is the default value.
+	uint8 								:5;
+
+}s_adc_t;
+/* -------------------- Software Interfaces -------------------- */
+Std_ReturnType ADC_init(const s_adc_t* a_adcObj);
+Std_ReturnType ADC_deInit();
+Std_ReturnType ADC_StartConversion();
+Std_ReturnType ADC_StartConversionBlocking(uint16* a_adcData, uint8 a_dataAdjustment);
+void ADC_readData(uint16 *a_adcData, uint8 a_dataAdjustment);
+
+#endif
+
+#endif /* ADC_ADC_H_ */

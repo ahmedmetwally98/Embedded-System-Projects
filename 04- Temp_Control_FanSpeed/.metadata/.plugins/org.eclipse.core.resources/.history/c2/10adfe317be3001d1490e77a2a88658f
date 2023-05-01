@@ -1,0 +1,27 @@
+/*
+ * hal_init.h
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#ifndef HAL_INIT_HAL_INIT_H_
+#define HAL_INIT_HAL_INIT_H_
+
+#include "ecu_LCD/LCD.h"
+#include "led/ecu_led.h"
+#include "motor/ecu_motor.h"
+
+const char_lcd_t g_lcdObj_4bitMode = {
+	    .RS_pin={PORT_D, GPIO_PIN0, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .E_pin={PORT_D, GPIO_PIN1, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[0]={PORT_D, GPIO_PIN2, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[1]={PORT_D, GPIO_PIN3, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[2]={PORT_D, GPIO_PIN4, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+	    .lcd_data_pins[3]={PORT_D, GPIO_PIN5, GPIO_DIRECTION_OUTPUT, GPIO_LOW},
+};
+
+Std_ReturnType HAL_init(void);
+
+
+#endif /* HAL_INIT_HAL_INIT_H_ */

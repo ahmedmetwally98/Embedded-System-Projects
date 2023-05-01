@@ -1,0 +1,48 @@
+21:56:05 **** Incremental Build of configuration Debug for project Temp_Control_Fan ****
+make all 
+Building file: ../APP_layer/App.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"APP_layer/App.d" -MT"APP_layer/App.o" -c -o "APP_layer/App.o" "../APP_layer/App.c"
+In file included from ../APP_layer/../HAL_init/ecu_LCD/../../MCAL_init/DIO_Driver/../../micro_config.h:21,
+                 from ../APP_layer/../HAL_init/ecu_LCD/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../APP_layer/../HAL_init/ecu_LCD/LCD.h:13,
+                 from ../APP_layer/../HAL_init/hal_init.h:11,
+                 from ../APP_layer/App.h:11,
+                 from ../APP_layer/App.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+../APP_layer/App.c: In function 'define_motor_state':
+../APP_layer/App.c:63: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:73: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:75: warning: pointer targets in passing argument 2 of 'lcd_4bit_send_string_data' differ in signedness
+../APP_layer/App.c:83: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:85: warning: pointer targets in passing argument 2 of 'lcd_4bit_send_string_data' differ in signedness
+../APP_layer/App.c:93: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:95: warning: pointer targets in passing argument 2 of 'lcd_4bit_send_string_data' differ in signedness
+../APP_layer/App.c:103: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:105: warning: pointer targets in passing argument 2 of 'lcd_4bit_send_string_data' differ in signedness
+Finished building: ../APP_layer/App.c
+ 
+Building target: Temp_Control_Fan.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,Temp_Control_Fan.map -mmcu=atmega16 -o "Temp_Control_Fan.elf"  ./MCAL_init/Timer0/Timer0.o  ./MCAL_init/Interrupt_Driver/INT_External.o  ./MCAL_init/DIO_Driver/hal_DIO.o  ./MCAL_init/ADC/adc.o  ./MCAL_init/mcal_init.o  ./HAL_init/motor/ecu_motor.o  ./HAL_init/led/ecu_led.o  ./HAL_init/ecu_LCD/LCD.o  ./HAL_init/hal_init.o  ./APP_layer/App.o   
+Finished building target: Temp_Control_Fan.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S Temp_Control_Fan.elf  >"Temp_Control_Fan.lss"
+Finished building: Temp_Control_Fan.lss
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega16 Temp_Control_Fan.elf
+AVR Memory Usage
+----------------
+Device: atmega16
+
+Program:   15022 bytes (91.7% Full)
+(.text + .data + .bootloader)
+
+Data:        393 bytes (38.4% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 

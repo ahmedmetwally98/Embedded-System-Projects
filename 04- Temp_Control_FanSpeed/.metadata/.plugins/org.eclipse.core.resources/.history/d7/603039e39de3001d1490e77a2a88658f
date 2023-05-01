@@ -1,0 +1,31 @@
+/*
+ * App.h
+ *
+ *  Created on: Mar 14, 2023
+ *      Author: ahmed
+ */
+
+#ifndef APP_H_
+#define APP_H_
+
+#include "../HAL_init/hal_init.h"
+#include "../MCAL_init/mcal_init.h"
+
+// VREF value in mVolt
+#define VREF			5000U
+
+extern const char_lcd_t g_lcdObj_4bitMode;
+extern const dc_motor_t g_dcMotorObj;
+extern const led_t g_ledMotorOFF;
+extern const led_t g_ledMotorON;
+
+extern const timer0_t g_tmr0Obj;
+extern const s_adc_t g_adcObj;
+
+/* ------------------- Application Functions Declarations ----------------------*/
+void application_initialize(void);
+
+void ADC_callBack_notify(void);
+void define_motor_state(uint8);
+
+#endif /* APP_H_ */

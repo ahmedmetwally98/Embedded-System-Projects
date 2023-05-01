@@ -1,0 +1,280 @@
+/*
+ * Timer0.c
+ *
+ *  Created on: Mar 16, 2023
+ *      Author: ahmed
+ */
+#include "Timer0.h"
+
+#if TIMER0_MODULE == MODULE_ENABLE
+/* ------------------------------ Global Variables Declarations ------------------------------ */
+static uint16 prescaler_value_map[5] = {1, 8, 64, 256, 1024};
+/* ------------------------------ Helper Functions Declarations ------------------------------ */
+
+static void timer0_set_mode(const timer0_t* tmr_obj);
+static void timer0_set_clock_source(const timer0_t* tmr_obj);
+
+/* ------------------------------ SW Functions Definitions ------------------------------ */
+
+Std_ReturnType timer0_init(const timer0_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	if(NULL == tmr_obj)
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		/* disable timer0 module */
+		TCCR0 &= 0xF8;
+		/* set interrupt configurations */
+#if TIMER0_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		INTERRUPT_GLOBAL_ENABLE();
+#if TIMER0_OV0_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER0_OVERFLOW_INTERRUPT_ENABLE();
+#endif
+#if TIMER0_OC0_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER0_OUTPUT_COMPARE_INTERRUPT_ENABLE();
+#endif
+#endif
+		/* select one of four general timer modes (Normal, CTC, Fast PWM, Phase-Correct PWM)*/
+		timer0_set_mode(tmr_obj);
+		// fill the timer registers with pre-load value
+		OCR0 = tmr_obj->tmr0_OCR_preload_value;
+		/* Assign clock source to the timer/counter to Enable counting */
+		timer0_set_clock_source(tmr_obj);
+	}
+	return ret;
+}
+Std_ReturnType timer0_Deinit(const timer0_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	if(NULL == tmr_obj)
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+#if TIMER0_INTERRUPT_FEATURE==INTERRUPT_FEATURE_ENABLE
+#if TIMER0_OV0_INTERRUPT_FEATURE==INTERRUPT_FEATURE_ENABLE
+		TIMER0_OVERFLOW_INTERRUPT_DISABLE();
+#endif
+#if TIMER0_OC0_INTERRUPT_FEATURE==INTERRUPT_FEATURE_ENABLE
+		TIMER0_OUTPUT_COMPARE_INTERRUPT_DISABLE();
+#endif
+#endif
+		/* disable timer0 module */
+		TCCR0 &= 0xF8;
+	}
+	return ret;
+}
+Std_ReturnType timer0_write_value(const timer0_t* tmr_obj, uint8 value)
+{
+	Std_ReturnType ret = E_OK;
+	if(NULL == tmr_obj)
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		TCNT0 = value;
+	}
+	return ret;
+}
+Std_ReturnType timer0_read_value(const timer0_t* tmr_obj, uint8* ret_value)
+{
+	Std_ReturnType ret = E_OK;
+	if(NULL == tmr_obj || ret_value == NULL)
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		*ret_value = TCNT0;
+	}
+	return ret;
+}
+
+/* changing the value of OCR0 should be done in the ISR only */
+Std_ReturnType timer0_generate_waveform(const timer0_t* tmr_obj, uint32 wave_freq)
+{
+	Std_ReturnType ret = E_OK;
+	if(NULL == tmr_obj)
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		// limit is: wave frequency <= Fcpu / 2 with (pre-scaler = 1)
+		if(wave_freq > (uint32)(F_CPU/(2.0*prescaler_value_map[tmr_obj->timer0_prescaler_value])))
+		{
+			ret = E_NOT_OK;
+		}
+		else
+		{
+			OCR0 = (uint8)(((float)F_CPU/(2.0*wave_freq*prescaler_value_map[tmr_obj->timer0_prescaler_value]))-1);
+		}
+	}
+	return ret;
+}
+/* changing the value of OCR0 should be done in the ISR only */
+Std_ReturnType timer0_pwm_duty_cycle(const timer0_t* tmr_obj, uint8 duty_cycle)
+{
+	Std_ReturnType ret = E_OK;
+	if(NULL == tmr_obj)
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		if(tmr_obj->timer0_general_mode == TIMER0_FAST_PWM_MODE ||
+				tmr_obj->timer0_general_mode == TIMER0_PHASE_CORRECT_PWM_MODE)
+		{
+			if (tmr_obj->timer0_co0_pin_state == TIMER0_INVERTED_PWM)
+			{
+				OCR0 = (uint8)((1.0-(float)duty_cycle/100.0)*255);
+			}
+			else if (tmr_obj->timer0_co0_pin_state == TIMER0_NON_INVERTED_PWM)
+			{
+				OCR0 = (uint8)(((float)duty_cycle/100.0)*255);
+			}
+		}
+	}
+	return ret;
+}
+Std_ReturnType timer0_pwm_start(const timer0_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	if(tmr_obj == NULL)
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		if (tmr_obj->timer0_general_mode == TIMER0_FAST_PWM_MODE||
+				tmr_obj->timer0_general_mode == TIMER0_PHASE_CORRECT_PWM_MODE)
+		{
+			switch(tmr_obj->timer0_co0_pin_state)
+			{
+			case TIMER0_INVERTED_PWM:		TCCR0 |= 0x30;	// set(COM00:1)
+											SET_BIT(DDRB, DDB3);	// set OC0 as digital o/p pin
+				break;
+			case TIMER0_NON_INVERTED_PWM:	CLEAR_BIT(TCCR0, COM00); SET_BIT(TCCR2, COM01);
+											SET_BIT(DDRB, DDB3);	// set OC0 as digital o/p pin
+				break;
+			}
+		}
+		else
+		{
+			ret = E_NOT_OK;
+		}
+	}
+	return ret;
+}
+Std_ReturnType timer0_pwm_stop()
+{
+	Std_ReturnType ret = E_OK;
+	TCCR0 &= 0xCF;		// pin OC0 disconnected (clear (COM00:1)
+	return ret;
+}
+
+/* ------------------------------ Helper Functions Definitions ------------------------------ */
+static void timer0_set_mode(const timer0_t* tmr_obj)
+{
+	if (tmr_obj->timer0_general_mode == TIMER0_NORMAL_MODE)
+	{
+		// set (WGM20:1) bits in Normal mode
+		TCCR2 &= (0xB7);
+	}
+	else if(tmr_obj->timer0_general_mode == TIMER0_CLEAR_TIMER_COMPARE_MODE)
+	{
+		// set (WGM20:1) bits in Clear Timer on Compare mode
+		CLEAR_BIT(TCCR0, WGM00);
+		SET_BIT(TCCR0, WGM01);
+	}
+	else if(tmr_obj->timer0_general_mode == TIMER0_FAST_PWM_MODE)
+	{
+		// set (WGM20:1) bits in Fast PWM mode
+		TCCR2 |= 0x48;
+	}
+	else if(tmr_obj->timer0_general_mode == TIMER0_PHASE_CORRECT_PWM_MODE)
+	{
+		// set (WGM20:1) bits in Phase Correct PWM mode
+		SET_BIT(TCCR2, WGM00);
+		CLEAR_BIT(TCCR2, WGM01);
+	}
+	switch(tmr_obj->timer0_co0_pin_state)
+	{
+	case TIMER0_CTC_SET_PIN:
+	case TIMER0_INVERTED_PWM:		TCCR0 |= 0x30;	// set(COM00:1)
+									SET_BIT(DDRB, DDB3);	// set OC0 as digital o/p pin
+		break;
+	case TIMER0_CTC_CLEAR_PIN:
+	case TIMER0_NON_INVERTED_PWM:	CLEAR_BIT(TCCR0, COM00); SET_BIT(TCCR2, COM01);
+									SET_BIT(DDRB, DDB3);	// set OC0 as digital o/p pin
+		break;
+	case TIMER0_CTC_TOGGLE_PIN:		SET_BIT(TCCR0, COM00); CLEAR_BIT(TCCR2, COM01);
+									SET_BIT(DDRB, DDB3);	// set OC0 as digital o/p pin
+		break;
+	default:	 TCCR0 &= 0xCF;		// pin OC0 disconnected (clear (COM00:1)
+		break;
+	}
+}
+
+static void timer0_set_clock_source(const timer0_t* tmr_obj)
+{
+	if (tmr_obj->timer0_clk_src == TIMER0_INTERNAL_CLK_SOURCE)
+	{
+		switch(tmr_obj->timer0_prescaler_value)
+		{
+		case TIMER0_PRESCALER_VALUE_DIV_BY_1:		SET_BIT(TCCR0, CS00); TCCR0 &= 0xF9;
+			break;
+		case TIMER0_PRESCALER_VALUE_DIV_BY_8:		SET_BIT(TCCR0, CS01); TCCR0 &= 0xFA;
+			break;
+		case TIMER0_PRESCALER_VALUE_DIV_BY_64:		CLEAR_BIT(TCCR0, CS02); TCCR0 |= 0xFC;
+			break;
+		case TIMER0_PRESCALER_VALUE_DIV_BY_256:		SET_BIT(TCCR0, CS02); TCCR0 &= 0xFC;
+			break;
+		case TIMER0_PRESCALER_VALUE_DIV_BY_1024:	CLEAR_BIT(TCCR0, CS01); TCCR0 |= 0x05;
+			break;
+		default: 	SET_BIT(TCCR2, CS20); TCCR2 &= 0xF9;
+			break;
+		}
+	}
+	else if(tmr_obj->timer0_clk_src == TIMER0_EXTERNAL_CLK_SOURCE)
+	{
+		switch(tmr_obj->timer0_edge_detect)
+		{
+		case TIMER0_EXTERNAL_CLK_RISING_EDGE:		TCCR0 |= 0x07;
+			break;
+		case TIMER0_EXTERNAL_CLK_FALLING_EDGE:		CLEAR_BIT(TCCR0, CS00); TCCR0 |= 0x06;
+			break;
+		default:	TCCR0 |= 0x07;	// Rising edge detector by default
+			break;
+		}
+		CLEAR_BIT(DDRB, DDB0);	// set T0 pin as Digital i/p for Counter mode
+	}
+}
+
+/* Implementing ISRs for the two Sources Interrupts related to Timer0*/
+
+#if TIMER0_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+#if TIMER0_OV0_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+ISR(TIMER0_OVF_vect)
+{
+	/* ISR code */
+
+	// clear TIMER0_OVF flag happen automatically
+}
+#endif
+#if TIMER0_OC0_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+ISR(TIMER0_COMP_vect)
+{
+	/* ISR code */
+
+	// clear TIMER0_COMP flag happen automatically
+}
+#endif
+#endif
+
+#endif

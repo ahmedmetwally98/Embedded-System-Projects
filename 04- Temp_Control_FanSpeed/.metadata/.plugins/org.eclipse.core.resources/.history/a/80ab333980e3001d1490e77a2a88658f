@@ -1,0 +1,16 @@
+/*
+ * mcal_init.c
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#include "mcal_init.h"
+
+s_adc_t g_adcObj = {
+		.adc_voltRef = ADC_REF_VOLTAGE_AVCC,
+		.adc_channel = ADC_CHANNEL_0,
+		.adc_mode = ADC_SINGLE_CONVERSION_MODE,
+		.adc_preScalerValue = ADC_PRESCALER_DIV_BY_4
+};
+

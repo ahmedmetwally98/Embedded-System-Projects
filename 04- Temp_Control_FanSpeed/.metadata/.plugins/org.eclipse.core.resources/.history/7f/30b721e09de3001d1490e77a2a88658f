@@ -1,0 +1,88 @@
+ /* App.c
+ *
+ *  Created on: Mar 13, 2023
+ *      Author: ahmed
+ */
+
+
+#include "App.h"
+
+Std_ReturnType ret = E_OK;
+
+volatile uint8 duty_cycle = 0;	// depend on temperature
+uint16 g_adcData=20;
+volatile uint8 temperature = 0;
+uint8 lm_sensor_str[6]={0};
+int main(void)
+{
+	application_initialize();
+	// start system with pwm = 0
+	ret = timer0_pwm_duty_cycle(&g_tmr0Obj, duty_cycle);
+	ret = timer0_pwm_start(&g_tmr0Obj);
+	while(1)
+	{
+		if(!READ_BIT(ADCSRA, ADSC))
+		{
+			ret = ADC_StartConversion();
+		}
+        /* Convert ADC read to actual degree Celsius */
+        temperature = g_adcData * ((VREF)/1024.0f);
+        temperature = temperature / 10;
+        /* Converting result from uint16 to text */
+        ret = LCD_convert_short_to_string(temperature, &(lm_sensor_str[0]));
+        // display A/D result (in text) on LCD
+        ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 14, &lm_sensor_str);
+        define_motor_state(temperature);
+	}
+	return 0;
+}
+
+
+void application_initialize(void)
+{
+	ret = HAL_init();
+	ret = MCAL_init();
+	ret = dc_motor_move_right(&g_dcMotorObj);
+}
+
+
+void ADC_callBack_notify(void)
+{
+	ADC_readData(&g_adcData, g_adcObj.adc_resultAdjustfy);
+}
+
+void define_motor_state(uint8 temperature)
+{
+	if(temperature < 25)
+	{	 // turn motor off -> duty cycle = 0
+		duty_cycle = 0;
+		ret = timer0_pwm_duty_cycle(&g_tmr0Obj, duty_cycle);
+		ret = LED_turn_off(&g_ledMotorON);
+		ret = LED_turn_on(&g_ledMotorOFF);
+	}
+	else
+	{
+		if(temperature >= 25 && temperature < 30 && duty_cycle != 25)
+		{
+			duty_cycle = 25;
+			ret = timer0_pwm_duty_cycle(&g_tmr0Obj, duty_cycle);
+		}
+		else if(temperature >= 30 && temperature < 35 && duty_cycle != 50)
+		{
+			duty_cycle = 50;
+			ret = timer0_pwm_duty_cycle(&g_tmr0Obj, duty_cycle);
+		}
+		else if(temperature >= 35 && temperature < 40 && duty_cycle != 75)
+		{
+			duty_cycle = 75;
+			ret = timer0_pwm_duty_cycle(&g_tmr0Obj, duty_cycle);
+		}
+		else if(temperature >= 40 && duty_cycle != 100)
+		{
+			duty_cycle = 100;
+			ret = timer0_pwm_duty_cycle(&g_tmr0Obj, duty_cycle);
+		}
+		ret = LED_turn_off(&g_ledMotorOFF);
+		ret = LED_turn_on(&g_ledMotorON);
+	}
+}

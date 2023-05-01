@@ -1,0 +1,141 @@
+/* 
+ * File:   ecu_led.c
+ * Author: ahmed
+ *
+ * Created on January 8, 2023, 10:40 PM
+ */
+
+#include "ecu_led.h"
+#if LED_MODULE == MODULE_ENABLE
+/**
+ * @brief Initialize the assigned pin to be OUTPUT and turn led off
+ * @param led   Pointer to the led module configuration
+ * @return  STATUS of the function
+ *          E_OK     : action executed successfully !
+ *          E_NOT_OK : action execution faild !
+ */
+Std_ReturnType LED_initialize (const led_t *led)
+{
+    Std_ReturnType ret = E_OK;
+    if (NULL == led)
+    {
+        ret = E_NOT_OK;
+    }
+    else
+    {
+    	gpio_config_pin_t pin_led = {.port=led->port_name,
+                                .pin=led->pin,
+                                .direction=GPIO_DIRECTION_OUTPUT,
+                                };
+        if (led->connection_status == NEGATIVE_CONNECTION)
+        {
+            if (led->led_status == LED_OFF)
+                pin_led.logic = GPIO_LOW;
+            else if (led->led_status == LED_ON)
+                pin_led.logic = GPIO_HIGH;
+        }
+        else if (led->connection_status == POSITIVE_CONNECTION)
+        {
+            if (led->led_status == LED_OFF)
+                pin_led.logic = GPIO_LOW;
+            else if (led->led_status == LED_ON)
+                pin_led.logic = GPIO_HIGH;
+        }
+        ret &= GPIO_pin_initialize(&pin_led);
+    }
+    return ret;
+}
+
+/**
+ * @brief assigning Logic 1 to the pin connected to the led to turn ON
+ * @param led   Pointer to the led module configuration
+ * @return STATUS of the function
+ *          E_OK     : action executed successfully !
+ *          E_NOT_OK : action execution faild !
+ */
+Std_ReturnType LED_turn_on (const led_t *led)
+{
+    Std_ReturnType ret = E_OK;
+    if (NULL == led)
+    {
+        ret = E_NOT_OK;
+    } 
+    else
+    {
+    	gpio_config_pin_t pin_led = {.port=led->port_name,
+                                .pin=led->pin,
+                                .direction=GPIO_DIRECTION_OUTPUT,
+                                };
+        if (led->connection_status == POSITIVE_CONNECTION)
+        {   /* turning led ON with pull Up connection */
+            pin_led.logic = GPIO_LOW;
+        }
+        else if (led->connection_status == NEGATIVE_CONNECTION)
+        {   /* turning led OFF with pull Down connection */
+            pin_led.logic = GPIO_HIGH;
+        }
+        ret = GPIO_pin_write_logic(&pin_led, pin_led.logic);
+    }
+    return ret;
+}
+
+/**
+ * @brief assigning Logic 0 to the pin connected to the led to turn OFF
+ * @param led   Pointer to the led module configuration
+ * @return STATUS of the function
+ *          E_OK     : action executed successfully !
+ *          E_NOT_OK : action execution faild !
+ */
+Std_ReturnType LED_turn_off (const led_t *led)
+{
+    Std_ReturnType ret = E_OK;
+    if (NULL == led)
+    {
+        ret = E_NOT_OK;
+    }
+    else
+    {
+        gpio_config_pin_t pin_led = {.port=led->port_name,
+                                .pin=led->pin,
+                                .direction=GPIO_DIRECTION_OUTPUT,
+                                };
+        if (led->connection_status == POSITIVE_CONNECTION)
+        {   /* turning led ON with pull Up connection */
+            pin_led.logic = GPIO_HIGH;
+        }
+        else if (led->connection_status == NEGATIVE_CONNECTION)
+        {   /* turning led OFF with pull Down connection */
+            pin_led.logic = GPIO_LOW;
+        }
+        ret = GPIO_pin_write_logic(&pin_led, pin_led.logic);
+    }
+    return ret;
+}
+
+/**
+ * @brief Toggle the logic on the pin connected to the led to turn ON/OFF
+ * @param led   Pointer to the led module configuration
+ * @return STATUS of the function
+ *          E_OK     : action executed successfully !
+ *          E_NOT_OK : action execution faild !
+ */
+Std_ReturnType LED_turn_toggle (const led_t *led)
+{
+    Std_ReturnType ret = E_OK;
+    if (NULL == led)
+    {
+        ret = E_NOT_OK;
+    }
+    else
+    {
+        gpio_config_pin_t pin_led = {.port=led->port_name,
+                                .pin=led->pin,
+                                .direction=GPIO_DIRECTION_OUTPUT,
+                                .logic=led->led_status
+                                };
+        /* it doesn't matter whether pin is pull up connected or pull down as the value of pin will inverted*/
+        ret = GPIO_pin_toggle_logic(&pin_led);
+    }
+    return ret;
+}
+#endif

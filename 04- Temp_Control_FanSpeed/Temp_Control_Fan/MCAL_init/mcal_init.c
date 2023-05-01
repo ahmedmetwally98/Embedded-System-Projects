@@ -1,0 +1,33 @@
+/*
+ * mcal_init.c
+ *
+ *  Created on: Apr 24, 2023
+ *      Author: ahmed
+ */
+
+#include "mcal_init.h"
+
+const s_adc_t g_adcObj = {
+		.adc_voltRef = ADC_REF_VOLTAGE_AVCC,
+		.adc_channel = ADC_CHANNEL_0,
+		.adc_mode = ADC_SINGLE_CONVERSION_MODE,
+		.adc_preScalerValue = ADC_PRESCALER_DIV_BY_64,
+		.adc_inetrruptEnable=1,
+		.ADC_interruptHandlerNotify=ADC_callBack_notify
+};
+
+const timer0_t g_tmr0Obj = {
+		.timer0_clk_src=TIMER0_INTERNAL_CLK_SOURCE,
+		.timer0_prescaler_value=TIMER0_PRESCALER_VALUE_DIV_BY_8,
+		.timer0_general_mode=TIMER0_PHASE_CORRECT_PWM_MODE,
+		.timer0_co0_pin_state=TIMER0_NON_INVERTED_PWM,
+
+};
+
+
+Std_ReturnType MCAL_init(void)
+{
+	ret = timer0_init(&g_tmr0Obj);
+	ret = ADC_init(&g_adcObj);
+	return ret;
+}
