@@ -13,10 +13,12 @@ All projects are implemented using 8-bit micro-controller.
 5. Measuring Distance using ultrasnoic sensor developed using ATmega16 micro-controller..
 6. Door lock security system developed using ATmega16 micro-controller.
 
+> Projects based on ATmega micro-controller are developed using Eclipse IDE.
+> Projects based on PIC micro-controller developed using MPLAB X IDE.
 
 All projects are implemented based on Layered Archeticture Design.
-Mainly there are three layered, which are:
-> - Application Layer, where application was developed.
-> - Hardware Abstraction Layer, where sensors and actuators were developed.
-> - Micro-controller Abstraction Layer, where hardware drivers were developed.
+Mainly there are three layers, which are:
+- Application Layer, where application was developed.
+- Hardware Abstraction Layer, where sensors and actuators were developed.
+- Micro-controller Abstraction Layer, where hardware drivers were developed.
 
