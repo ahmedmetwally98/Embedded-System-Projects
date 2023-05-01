@@ -1,0 +1,137 @@
+17:25:42 **** Build of configuration Debug for project HMI_MCU ****
+make all 
+Building file: ../MCAL_init/USART/usart.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/USART/usart.d" -MT"MCAL_init/USART/usart.o" -c -o "MCAL_init/USART/usart.o" "../MCAL_init/USART/usart.c"
+In file included from ../MCAL_init/USART/../../micro_config.h:23,
+                 from ../MCAL_init/USART/usart.h:14,
+                 from ../MCAL_init/USART/usart.c:10:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../MCAL_init/USART/usart.c
+ 
+Building file: ../MCAL_init/Timer_16bit/hal_timer1.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/Timer_16bit/hal_timer1.d" -MT"MCAL_init/Timer_16bit/hal_timer1.o" -c -o "MCAL_init/Timer_16bit/hal_timer1.o" "../MCAL_init/Timer_16bit/hal_timer1.c"
+In file included from ../MCAL_init/Timer_16bit/../Interrupt_Driver/../../micro_config.h:23,
+                 from ../MCAL_init/Timer_16bit/../Interrupt_Driver/Interrupt_config.h:12,
+                 from ../MCAL_init/Timer_16bit/../Interrupt_Driver/INT_Internal.h:14,
+                 from ../MCAL_init/Timer_16bit/hal_timer1.h:13,
+                 from ../MCAL_init/Timer_16bit/hal_timer1.c:10:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../MCAL_init/Timer_16bit/hal_timer1.c
+ 
+Building file: ../MCAL_init/DIO_Driver/hal_DIO.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/DIO_Driver/hal_DIO.d" -MT"MCAL_init/DIO_Driver/hal_DIO.o" -c -o "MCAL_init/DIO_Driver/hal_DIO.o" "../MCAL_init/DIO_Driver/hal_DIO.c"
+In file included from ../MCAL_init/DIO_Driver/../../micro_config.h:23,
+                 from ../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../MCAL_init/DIO_Driver/hal_DIO.c:9:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../MCAL_init/DIO_Driver/hal_DIO.c
+ 
+Building file: ../MCAL_init/mcal_init.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/mcal_init.d" -MT"MCAL_init/mcal_init.o" -c -o "MCAL_init/mcal_init.o" "../MCAL_init/mcal_init.c"
+In file included from ../MCAL_init/DIO_Driver/../../micro_config.h:23,
+                 from ../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../MCAL_init/mcal_init.h:11,
+                 from ../MCAL_init/mcal_init.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../MCAL_init/mcal_init.c
+ 
+Building file: ../HAL_init/ecu_LCD/LCD.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"HAL_init/ecu_LCD/LCD.d" -MT"HAL_init/ecu_LCD/LCD.o" -c -o "HAL_init/ecu_LCD/LCD.o" "../HAL_init/ecu_LCD/LCD.c"
+In file included from ../HAL_init/ecu_LCD/../../MCAL_init/DIO_Driver/../../micro_config.h:23,
+                 from ../HAL_init/ecu_LCD/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../HAL_init/ecu_LCD/LCD.h:13,
+                 from ../HAL_init/ecu_LCD/LCD.c:7:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../HAL_init/ecu_LCD/LCD.c
+ 
+Building file: ../HAL_init/Keypad/Keypad_matrix.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"HAL_init/Keypad/Keypad_matrix.d" -MT"HAL_init/Keypad/Keypad_matrix.o" -c -o "HAL_init/Keypad/Keypad_matrix.o" "../HAL_init/Keypad/Keypad_matrix.c"
+In file included from ../HAL_init/Keypad/../../MCAL_init/DIO_Driver/../../micro_config.h:23,
+                 from ../HAL_init/Keypad/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../HAL_init/Keypad/Keypad_matrix.h:12,
+                 from ../HAL_init/Keypad/Keypad_matrix.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../HAL_init/Keypad/Keypad_matrix.c
+ 
+Building file: ../HAL_init/hal_init.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"HAL_init/hal_init.d" -MT"HAL_init/hal_init.o" -c -o "HAL_init/hal_init.o" "../HAL_init/hal_init.c"
+In file included from ../HAL_init/Keypad/../../MCAL_init/DIO_Driver/../../micro_config.h:23,
+                 from ../HAL_init/Keypad/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../HAL_init/Keypad/Keypad_matrix.h:12,
+                 from ../HAL_init/hal_init.h:11,
+                 from ../HAL_init/hal_init.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../HAL_init/hal_init.c
+ 
+Building file: ../APP_layer/App.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"APP_layer/App.d" -MT"APP_layer/App.o" -c -o "APP_layer/App.o" "../APP_layer/App.c"
+In file included from ../APP_layer/../HAL_init/Keypad/../../MCAL_init/DIO_Driver/../../micro_config.h:23,
+                 from ../APP_layer/../HAL_init/Keypad/../../MCAL_init/DIO_Driver/hal_DIO.h:12,
+                 from ../APP_layer/../HAL_init/Keypad/Keypad_matrix.h:12,
+                 from ../APP_layer/../HAL_init/hal_init.h:11,
+                 from ../APP_layer/App.h:11,
+                 from ../APP_layer/App.c:8:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+../APP_layer/App.c: In function 'main':
+../APP_layer/App.c:30: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:47: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c: In function 'display_door_msg':
+../APP_layer/App.c:101: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:103: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:106: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c: In function 'display_alarm_msg':
+../APP_layer/App.c:113: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:114: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:118: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:121: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c: In function 'get_new_password':
+../APP_layer/App.c:129: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:130: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c: In function 'display_options':
+../APP_layer/App.c:149: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:150: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:151: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c: In function 'chnage_password_option_handler':
+../APP_layer/App.c:202: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+../APP_layer/App.c:203: warning: pointer targets in passing argument 4 of 'lcd_4bit_send_string_data_pos' differ in signedness
+Finished building: ../APP_layer/App.c
+ 
+Building target: HMI_MCU.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,HMI_MCU.map -mmcu=atmega16 -o "HMI_MCU.elf"  ./MCAL_init/USART/usart.o  ./MCAL_init/Timer_16bit/hal_timer1.o  ./MCAL_init/DIO_Driver/hal_DIO.o  ./MCAL_init/mcal_init.o  ./HAL_init/ecu_LCD/LCD.o  ./HAL_init/Keypad/Keypad_matrix.o  ./HAL_init/hal_init.o  ./APP_layer/App.o   
+Finished building target: HMI_MCU.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S HMI_MCU.elf  >"HMI_MCU.lss"
+Finished building: HMI_MCU.lss
+ 
+Create Flash image (ihex format)
+avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex HMI_MCU.elf  "HMI_MCU.hex"
+Finished building: HMI_MCU.hex
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega16 HMI_MCU.elf
+AVR Memory Usage
+----------------
+Device: atmega16
+
+Program:   15620 bytes (95.3% Full)
+(.text + .data + .bootloader)
+
+Data:        565 bytes (55.2% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+17:25:45 Build Finished. 0 errors, 24 warnings. (took 2s.705ms)
+

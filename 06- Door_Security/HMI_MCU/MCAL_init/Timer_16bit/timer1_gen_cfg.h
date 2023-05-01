@@ -1,0 +1,17 @@
+/*
+ * timer1_gen_cfg.h
+ *
+ *  Created on: Apr 26, 2023
+ *      Author: ahmed
+ */
+
+#ifndef MCAL_INIT_TIMER_16BIT_TIMER1_GEN_CFG_H_
+#define MCAL_INIT_TIMER_16BIT_TIMER1_GEN_CFG_H_
+
+#define TIMER1_NORMAL_GENERAL_MODE		0x00
+#define TIMER1_CTC_MODE			0x01
+#define TIMER1_PWM_MODE			0x02
+
+#define TIMER1_MODE				TIMER1_NORMAL_GENERAL_MODE
+
+#endif /* MCAL_INIT_TIMER_16BIT_TIMER1_GEN_CFG_H_ */

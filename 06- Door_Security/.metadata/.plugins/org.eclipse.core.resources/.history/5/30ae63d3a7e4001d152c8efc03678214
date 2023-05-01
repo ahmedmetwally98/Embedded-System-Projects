@@ -1,0 +1,31 @@
+/*
+ * App.h
+ *
+ *  Created on: Mar 14, 2023
+ *      Author: ahmed
+ */
+
+#ifndef APP_H_
+#define APP_H_
+
+#include "../HAL_init/hal_init.h"
+#include "../MCAL_init/mcal_init.h"
+
+/*------------------- Global Variables ------------------------*/
+extern const gpio_config_pin_t g_buzzerObj;
+extern const timer1_t g_tmr1Obj;
+extern usart_t g_uartObj2;
+extern const dc_motor_t g_dcMotorObj;
+
+/* ------------------- Application Functions Declarations ----------------------*/
+void application_initialize(void);
+
+void tmr_callBackNotify(void);
+void turn_option_OFF(void);
+
+Std_ReturnType password_validation(const uint8* a_pass, const uint8* a_userPass,
+									uint8 a_passLen, uint8 a_userPassLen);
+void change_password(uint8* g_userEnteredPassword, uint8 g_userPassword_length);
+void reset_password(uint8* password);
+
+#endif /* APP_H_ */

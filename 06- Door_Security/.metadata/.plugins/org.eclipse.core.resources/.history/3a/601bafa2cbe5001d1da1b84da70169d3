@@ -1,0 +1,152 @@
+ /* App.c
+ *
+ *  Created on: Mar 13, 2023
+ *      Author: ahmed
+ */
+
+
+#include "App.h"
+
+Std_ReturnType ret = E_OK;
+volatile uint8 g_operation_status = 0;
+volatile uint8 _delay_sec = 3;
+uint8 g_password[8] = {'0', '0', '0', '0'};
+uint8 g_password_length = 4;	// initialized with initial password length
+uint8 g_passwordExistance = 0;	// 0xFF -> no initial password. 0x00 -> password previously stored.
+
+uint8 g_userEnteredPassword[8] = {0};
+uint8 g_userPassword_length = 0;
+uint8 g_uartCode = 0;
+
+int main(void)
+{
+	application_initialize();
+
+	/* Set initial system password if no one exist. *
+	 * read existing flag
+	 */
+	ret = USART_Receive_Byte_Blocking(&g_uartObj2, &g_uartCode);	// receive initiate code for communication
+
+	ret = EEPROM24C16_readByte(0x0000, &g_passwordExistance);
+	if(g_passwordExistance == 0xFF)
+	{	// System initiate. Write system password
+		ret = EEPROM24C16_writeBlock(0x0008, &g_password[0], g_password_length);
+		ret = EEPROM24C16_writeByte(0x0001, g_password_length);
+		g_passwordExistance = 0x00;
+		ret = EEPROM24C16_writeByte(0x0000, g_passwordExistance);
+		ret = USART_Send_Byte_Blocking(0x00);	// system initiate.
+	}
+	else if(g_passwordExistance == 0x00)
+	{	// password exists in the eeprom. Read and store it.
+		ret = EEPROM24C16_readByte(0x0001, &g_password_length);
+		ret = EEPROM24C16_readBlock(0x0008, &g_password[0], g_password_length);
+		ret = USART_Send_Byte_Blocking(0x01);	// initial password exist.
+	}
+
+	while(1)
+	{
+		ret = USART_Receive_Byte_Blocking(&g_uartObj2, &g_uartCode);
+		if(0xAA == g_uartCode)
+		{	// receive user entered password for validation
+			ret = USART_receiveString_Blocking(&g_uartObj2, &g_userEnteredPassword[0]);
+			// get user password length
+			ret = USART_Receive_Byte_Blocking(&g_uartObj2, &g_userPassword_length);
+			ret = password_validation(&g_password[0], &g_userEnteredPassword[0], g_password_length, g_userPassword_length);
+			if(E_OK == ret)
+			{	// password match
+				g_uartCode = 0xA1;
+				ret = USART_Send_Byte_Blocking(g_uartCode);
+				// receiving option
+				ret = USART_Receive_Byte_Blocking(&g_uartObj2, &g_uartCode);
+				if('1' == g_uartCode)
+				{	// option: open door
+					_delay_sec = 3;
+					ret = timer1_write_counter_value(&g_tmr1Obj, 0x0000);
+					ret = timer1_init(&g_tmr1Obj);
+					dc_motor_move_right(&g_dcMotorObj);
+					while(_delay_sec);
+					_delay_sec = 3;
+					ret = timer1_write_counter_value(&g_tmr1Obj, 0x0000);
+					ret = timer1_init(&g_tmr1Obj);
+					dc_motor_move_left(&g_dcMotorObj);
+					ret = timer1_Deinit(&g_tmr1Obj);
+					dc_motor_stop(&g_dcMotorObj);
+				}
+				else if('2' == g_uartCode)
+				{	// option: change password of the system
+					// get entered password
+					ret = USART_receiveString_Blocking(&g_uartObj2, &g_userEnteredPassword[0]);
+					// get password length
+					ret = USART_Receive_Byte_Blocking(&g_uartObj2, &g_userPassword_length);
+					change_password(&g_userEnteredPassword[0], g_userPassword_length);
+					// saving password in EEPROM
+					ret = EEPROM24C16_writeBlock(0x0008, &g_password[0], g_password_length);
+				}
+			}
+			else if(E_NOT_OK == ret)
+			{	// password doesn't match
+				g_uartCode = 0xA0;
+				ret = USART_Send_Byte_Blocking(g_uartCode);
+				// turning Buzzer on for 3 sec
+				_delay_sec = 6;
+				ret = timer1_write_counter_value(&g_tmr1Obj, 0x0000);
+				ret = timer1_init(&g_tmr1Obj);
+				Buzzer_turnON();
+				while(_delay_sec);
+				Buzzer_turnOFF();
+			}
+		}
+	}
+	return 0;
+}
+
+void application_initialize(void)
+{
+	ret = HAL_init();
+	ret = MCAL_init();
+}
+
+void tmr_callBackNotify(void)
+{
+	_delay_sec--;
+	if(!_delay_sec)
+	{
+		ret = timer1_Deinit(&g_tmr1Obj);
+	}
+	ret = timer1_write_counter_value(&g_tmr1Obj, 34286);
+}
+
+Std_ReturnType password_validation(const uint8* a_pass, const uint8* a_userPass,
+									uint8 a_passLen, uint8 a_userPassLen)
+{
+	Std_ReturnType ret = E_OK;
+	uint8 indx=0;
+	if(a_passLen != a_userPassLen)
+	{	// password doesn't match
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		while(a_passLen--)
+		{
+			if(a_pass[indx] != a_userPass[indx])
+			{	// password doesn't match
+				ret = E_NOT_OK;
+				break;
+			}
+			indx++;
+		}
+	}
+	return ret;
+}
+
+void change_password(uint8* g_userEnteredPassword, uint8 g_userPassword_length)
+{
+	uint8 counter = 0;
+	for(counter = 0; counter < g_userPassword_length; counter++)
+	{
+		g_password[counter] = g_userEnteredPassword[counter];
+	}
+	g_password_length = g_userPassword_length;
+}
+

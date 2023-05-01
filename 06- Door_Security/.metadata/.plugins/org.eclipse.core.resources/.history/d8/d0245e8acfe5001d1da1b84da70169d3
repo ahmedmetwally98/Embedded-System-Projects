@@ -1,0 +1,191 @@
+ /* App.c
+ *
+ *  Created on: Mar 13, 2023
+ *      Author: ahmed
+ */
+
+
+#include "App.h"
+
+Std_ReturnType ret = E_OK;
+
+volatile uint8 _delay_sec = 3;
+uint8 g_uartCode = 0;
+uint8 g_userOption = 0;
+uint8 g_userPassword[8] = {0};
+uint8 g_userPassword_len = 0;
+uint8 g_keyValue = 0;
+volatile uint8 g_doorFlag = 0;
+
+int main(void)
+{
+	application_initialize();
+
+	ret = USART_Send_Byte_Blocking(0x00);	// command to initiate the communication
+
+	// check if there is stored password or not
+	ret = USART_Receive_Byte_Blocking(&g_uartObj1, &g_uartCode);
+	if(0x00 == g_uartCode)
+	{	// view system initial password then option
+		ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 1, "Sys. Password= 0000");
+		//_delay_ms(5000);
+	}
+	else if(0x01 == g_uartCode)
+	{	// view options direct
+
+	}
+	while(1)
+	{
+		display_options();
+		g_keyValue = 0;
+		// get option from user
+		do{
+			ret = Keypad_getValue(&g_keypadObj, &g_keyValue);
+		}while(!(g_keyValue >= '1' && g_keyValue <= '2'));
+		g_userOption = g_keyValue;
+		ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, _LCD_CLEAR);
+		ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode,1, 1, "Enter pass: ");
+		ret = USART_Send_Byte_Blocking(0xAA);	// prepare processing unit for receiving user password
+		g_keyValue = 0;
+		get_password_from_user();
+		// send password to Processing MCU
+		ret = USART_sendString_Blocking(&g_userPassword[0]);
+		ret = USART_Send_Byte_Blocking('#');	// to end process of sending string
+		ret = USART_Send_Byte_Blocking(g_userPassword_len-1);
+		// receive validation result
+		ret = USART_Receive_Byte_Blocking(&g_uartObj1, &g_uartCode);
+		if(g_uartCode == 0xA0)
+		{	// validation failed
+			_delay_sec = 6;					// delay system for 6 seconds
+			ret = timer1_Deinit(&g_tmr1Obj);
+			ret = timer1_write_counter_value(&g_tmr1Obj, 34286);
+			ret = timer1_init(&g_tmr1Obj);
+			display_alarm_msg();
+			while(_delay_sec);
+			ret = timer1_Deinit(&g_tmr1Obj);
+		}
+		else if(g_uartCode == 0xA1)
+		{	// validation passed
+			//send user option
+			ret = USART_Send_Byte_Blocking(g_userOption);
+			if('1' == g_userOption)
+			{	// option: open door
+				g_doorFlag = 0;
+				_delay_sec = 3; 			// delay system for 3 seconds
+				ret = timer1_write_counter_value(&g_tmr1Obj, 34286);
+				ret = timer1_init(&g_tmr1Obj);
+				display_door_msg();			// motor turn right
+				while(_delay_sec);
+				g_doorFlag = 1;
+				_delay_sec = 3; 			// delay system for 3 seconds
+				ret = timer1_write_counter_value(&g_tmr1Obj, 34286);
+				ret = timer1_init(&g_tmr1Obj);
+				display_door_msg();			// motor turn left
+				while(_delay_sec);
+				ret = timer1_Deinit(&g_tmr1Obj);
+			}
+			else if('2' == g_userOption)
+			{
+				get_new_password();
+				get_new_password();
+				ret = USART_sendString_Blocking(&g_userPassword[0]);
+				ret = USART_Send_Byte_Blocking('#');	// to end process of sending string
+				ret = USART_Send_Byte_Blocking(g_userPassword_len-1);
+				ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, _LCD_CLEAR);
+				ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 1, "password changed");
+				ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 3, 1, "Successfully");
+			}
+		}
+
+	}
+	return 0;
+}
+
+
+void application_initialize(void)
+{
+	ret = HAL_init();
+	ret = MCAL_init();
+}
+
+
+void tmr_callBackNotify(void)
+{
+	_delay_sec--;
+	if(!_delay_sec)
+	{
+		ret = timer1_Deinit(&g_tmr1Obj);
+	}
+	ret = timer1_write_counter_value(&g_tmr1Obj, 34286);
+}
+
+void display_door_msg(void)
+{
+	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, _LCD_CLEAR);
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 1, 1, "Door Lock Sys.");
+	if(g_doorFlag == 0){
+		ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 4, "Door is opening!");
+	}
+	else if(g_doorFlag == 1){
+		ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 4, "Door is closing!");
+	}
+}
+
+void display_alarm_msg(void)
+{
+	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, _LCD_CLEAR);
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 1, 1, "Door Lock Sys.");
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 1, "Invalid Password!!");
+	// flashing alarm!
+	while(_delay_sec)
+	{
+		ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 3, 9,"Alarm !!");
+		_delay_ms(250);
+		ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, DDRAM_START_ADDRESS + ROW3_OFFSET);
+		ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 3, 9,  "        ");
+		_delay_ms(250);
+	}
+}
+
+void get_new_password(void)
+{
+	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, _LCD_CLEAR);
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 1, 1, "Door Lock Sys.");
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 1, "Enter new Password");
+	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, DDRAM_START_ADDRESS + ROW3_OFFSET+6);
+	g_userPassword_len = 0;
+	g_keyValue = 0;
+	do{
+		g_userPassword_len++;
+		ret = Keypad_getValue(&g_keypadObj, &g_keyValue);
+		// display star corresponding to enter one character
+		ret = lcd_4bit_send_char_data(&g_lcdObj_4bitMode, '*');
+		if(g_keyValue != '='  && g_userPassword_len <= 8)
+		{
+			g_userPassword[g_userPassword_len-1] = g_keyValue;
+		}
+	}while(g_keyValue != '=' && g_userPassword_len < 8);
+}
+
+void display_options(void)
+{
+	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, _LCD_CLEAR);
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 1, 1, "Door Lock Sys.");
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 2, 1, "1- Open The Door");
+	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 3, 1, "2- Change Password");
+}
+
+void get_password_from_user(void)
+{
+	g_userPassword_len = 0;
+	do{
+		g_userPassword_len++;
+		ret = Keypad_getValue(&g_keypadObj, &g_keyValue);
+		// display star corresponding to enter one character
+		ret = lcd_4bit_send_char_data(&g_lcdObj_4bitMode, '*');
+		if(g_keyValue != '='  && g_userPassword_len <= 8)
+		{
+			g_userPassword[g_userPassword_len-1] = g_keyValue;
+		}
+	}while(g_keyValue != '=' && g_userPassword_len < 8);
+}

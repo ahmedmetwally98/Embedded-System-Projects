@@ -1,0 +1,78 @@
+17:23:43 **** Build of configuration Debug for project Processing_MCU ****
+make all 
+Building file: ../MCAL_init/USART/usart.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/USART/usart.d" -MT"MCAL_init/USART/usart.o" -c -o "MCAL_init/USART/usart.o" "../MCAL_init/USART/usart.c"
+Finished building: ../MCAL_init/USART/usart.c
+ 
+Building file: ../MCAL_init/Timer_16bit/hal_timer1.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/Timer_16bit/hal_timer1.d" -MT"MCAL_init/Timer_16bit/hal_timer1.o" -c -o "MCAL_init/Timer_16bit/hal_timer1.o" "../MCAL_init/Timer_16bit/hal_timer1.c"
+Finished building: ../MCAL_init/Timer_16bit/hal_timer1.c
+ 
+Building file: ../MCAL_init/I2C_Driver/I2C.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/I2C_Driver/I2C.d" -MT"MCAL_init/I2C_Driver/I2C.o" -c -o "MCAL_init/I2C_Driver/I2C.o" "../MCAL_init/I2C_Driver/I2C.c"
+Finished building: ../MCAL_init/I2C_Driver/I2C.c
+ 
+Building file: ../MCAL_init/DIO_Driver/hal_DIO.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/DIO_Driver/hal_DIO.d" -MT"MCAL_init/DIO_Driver/hal_DIO.o" -c -o "MCAL_init/DIO_Driver/hal_DIO.o" "../MCAL_init/DIO_Driver/hal_DIO.c"
+Finished building: ../MCAL_init/DIO_Driver/hal_DIO.c
+ 
+Building file: ../MCAL_init/mcal_init.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"MCAL_init/mcal_init.d" -MT"MCAL_init/mcal_init.o" -c -o "MCAL_init/mcal_init.o" "../MCAL_init/mcal_init.c"
+Finished building: ../MCAL_init/mcal_init.c
+ 
+Building file: ../HAL_init/motor/ecu_motor.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"HAL_init/motor/ecu_motor.d" -MT"HAL_init/motor/ecu_motor.o" -c -o "HAL_init/motor/ecu_motor.o" "../HAL_init/motor/ecu_motor.c"
+Finished building: ../HAL_init/motor/ecu_motor.c
+ 
+Building file: ../HAL_init/External_EEPROM/external_eeprom.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"HAL_init/External_EEPROM/external_eeprom.d" -MT"HAL_init/External_EEPROM/external_eeprom.o" -c -o "HAL_init/External_EEPROM/external_eeprom.o" "../HAL_init/External_EEPROM/external_eeprom.c"
+Finished building: ../HAL_init/External_EEPROM/external_eeprom.c
+ 
+Building file: ../HAL_init/hal_init.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"HAL_init/hal_init.d" -MT"HAL_init/hal_init.o" -c -o "HAL_init/hal_init.o" "../HAL_init/hal_init.c"
+Finished building: ../HAL_init/hal_init.c
+ 
+Building file: ../APP_layer/App.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega16 -DF_CPU=8000000UL -MMD -MP -MF"APP_layer/App.d" -MT"APP_layer/App.o" -c -o "APP_layer/App.o" "../APP_layer/App.c"
+Finished building: ../APP_layer/App.c
+ 
+Building target: Processing_MCU.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,Processing_MCU.map -mmcu=atmega16 -o "Processing_MCU.elf"  ./MCAL_init/USART/usart.o  ./MCAL_init/Timer_16bit/hal_timer1.o  ./MCAL_init/I2C_Driver/I2C.o  ./MCAL_init/DIO_Driver/hal_DIO.o  ./MCAL_init/mcal_init.o  ./HAL_init/motor/ecu_motor.o  ./HAL_init/External_EEPROM/external_eeprom.o  ./HAL_init/hal_init.o  ./APP_layer/App.o   
+Finished building target: Processing_MCU.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S Processing_MCU.elf  >"Processing_MCU.lss"
+Finished building: Processing_MCU.lss
+ 
+Create Flash image (ihex format)
+avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex Processing_MCU.elf  "Processing_MCU.hex"
+Finished building: Processing_MCU.hex
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega16 Processing_MCU.elf
+AVR Memory Usage
+----------------
+Device: atmega16
+
+Program:   11428 bytes (69.8% Full)
+(.text + .data + .bootloader)
+
+Data:        344 bytes (33.6% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+17:23:46 Build Finished. 0 errors, 0 warnings. (took 2s.484ms)
+

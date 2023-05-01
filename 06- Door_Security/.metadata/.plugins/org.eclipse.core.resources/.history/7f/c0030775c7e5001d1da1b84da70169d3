@@ -1,0 +1,588 @@
+/*
+ * hal_timer1.c
+ *
+ *  Created on: Mar 25, 2023
+ *      Author: ahmed
+ */
+
+
+
+#include "hal_timer1.h"
+#if TIMER1_MODULE == MODULE_ENABLE
+/* ------------------------------ Global Variables Declarations ------------------------------ */
+static const uint16 prescaler_value_map[5] = {1, 8, 64, 256, 1024};
+#if TIMER1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+#if TIMER1_OC1A_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+static void(*tmr1_IRQHandller_OC1A)(void)=NULL;
+#endif
+#if TIMER1_OC1B_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+static void(*tmr1_IRQHandller_OC1B)(void)=NULL;
+#endif
+#if TIMER1_OV1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+static void(*tmr1_IRQHandller_OVF)(void)=NULL;
+#endif
+#endif
+
+/* ------------------------------ Helper Functions Declarations ------------------------------ */
+static void timer1_set_clock_source(const timer1_t* tmr_obj);
+static Std_ReturnType timer1_set_general_mode(const timer1_t* tmr_obj);
+#if ((TIMER1_MODE == TIMER1_CTC_MODE) || (TIMER1_MODE == TIMER1_PWM_MODE))
+static Std_ReturnType timer1_set_output_pins_mode(const timer1_t* tmr_obj);
+#endif
+#if TIMER1_MODE == TIMER1_PWM_MODE
+static Std_ReturnType set_pwm_set_duty_cycle(const timer1_t* tmr_obj, uint8 output_pin, uint8 duty);
+static Std_ReturnType set_pwm_freq(const timer1_t* tmr_obj, uint32 freq);
+#endif
+/* ------------------------------ SW Functions Definitions ------------------------------ */
+Std_ReturnType timer1_init(const timer1_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	if(tmr_obj == NULL)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		// Disable timer1 module
+		TIMER1_MODULE_DISABLE();
+		/* Set Interrupts Configurations */
+#if TIMER1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		INTERRUPT_GLOBAL_ENABLE();
+#if TIMER1_OV1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_OVERFLOW_INTERRUPT_ENABLE();
+#endif
+#if	TIMER1_OC1A_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_OC1A_INTERRUPT_ENABLE();
+#endif
+#if	TIMER1_OC1B_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_OC1B_INTERRUPT_ENABLE();
+#endif
+#if	TIMER1_IC1_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_IC1_INTERRUPT_ENABLE();
+#endif
+#endif
+		/*Set Timer1 General Mode */
+		timer1_set_general_mode(tmr_obj);
+
+		/* Set output Pins (OC1A, OC1B) mode */
+#if TIMER1_MODE		==	TIMER1_CTC_MODE || TIMER1_MODE		==	TIMER1_PWM_MODE
+		timer1_set_output_pins_mode(tmr_obj);
+		/* Set pre-load values for the 16-bit compare Register*/
+		OCR1AH = (uint8)(tmr_obj->tmr1_OCR1A_preload_value >> 8);
+		OCR1AL = (uint8)(tmr_obj->tmr1_OCR1A_preload_value);
+		ICR1H = (uint8)(tmr_obj->tmr1_ICR1_preload_value >> 8);
+		ICR1L = (uint8)(tmr_obj->tmr1_ICR1_preload_value);
+#endif
+		/* Enable Timer1 Module */
+		timer1_set_clock_source(tmr_obj);
+	}
+	return ret;
+}
+Std_ReturnType timer1_Deinit(const timer1_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	if(tmr_obj == NULL)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		// Disable all Timer1 interrupt sources if defined
+#if TIMER1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+#if TIMER1_OV1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_OVERFLOW_INTERRUPT_DISABLE();
+#endif
+#if	TIMER1_OC1A_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_OC1A_INTERRUPT_DISABLE();
+#endif
+#if	TIMER1_OC1B_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_OC1B_INTERRUPT_DISABLE();
+#endif
+#if	TIMER1_IC1_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+		TIMER1_IC1_INTERRUPT_DISABLE();
+#endif
+#endif
+		// Disable Timer1 Module
+		TIMER1_MODULE_DISABLE();
+	}
+	return ret;
+}
+Std_ReturnType timer1_write_counter_value(const timer1_t* tmr_obj, uint16 value)
+{
+	Std_ReturnType ret = E_OK;
+	if(tmr_obj == NULL)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		/** write sequence in 16-bit register for 8-bit architecture is as following:
+		 * 1- write first the new value in High byte of the intended register
+		 * 2- write second the new value in Low byte of the intended register
+		 * */
+		TCNT1H = (uint8)(value >> 8);
+		TCNT1L = (uint8)(value);
+	}
+	return ret;
+}
+Std_ReturnType timer1_read_counter_value(const timer1_t* tmr_obj, uint16* ret_value)
+{
+	Std_ReturnType ret = E_OK;
+	if(tmr_obj == NULL || NULL == ret_value)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		/** read sequence in 16-bit register for 8-bit architecture is as following:
+		 * 1- read first the new value in Low byte of the intended register
+		 * 2- read second the new value in High byte of the intended register
+		 * */
+		*ret_value = TCNT1L;
+		*ret_value |= (((uint16)TCNT1H) << 8);
+	}
+	return ret;
+}
+#if TIMER1_MODE		==	TIMER1_CTC_MODE
+Std_ReturnType timer1_generate_waveform(const timer1_t* tmr_obj, uint32 wave_freq)
+{
+	/**
+	 * This interface works only if Clear Timer on Compare mode (CTC) whether (ICR1, OCR1A) used
+	 * the interrupt handler routine can be used for updating the TOP value
+	 */
+	Std_ReturnType ret = E_OK;
+	uint16 TOP_value = 0;
+	if(tmr_obj == NULL)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		TOP_value = (uint16)((float)(F_CPU)/(2.0*prescaler_value_map[tmr_obj->timer1_prescaler_value] *
+				wave_freq) - 1);
+		if(tmr_obj->timer1_general_mode == TIMER1_CLEAR_TIMER_COMPARE_ICR1_MODE)
+		{	// ICR1 16-bit register used to define TOP value
+			SET_BIT(DDRD, PD5);		// Set OC1A pin as Digital output for generating waveform
+			ICR1H = (uint8)(TOP_value >> 8);
+			ICR1L = (uint8)TOP_value;
+			SET_BIT(TCCR1A, COM1A0);	// ensure that mode of OC1A pin is Toggle
+			CLEAR_BIT(TCCR1A, COM1A1);
+		}
+		else if(tmr_obj->timer1_general_mode == TIMER1_CLEAR_TIMER_COMPARE_OCR1A_MODE)
+		{	// OCR1A 16-bit register used to define TOP value
+			SET_BIT(DDRD, PD5);		// Set OC1A pin as Digital output for generating waveform
+			OCR1AH = (uint8)(TOP_value >> 8);
+			OCR1AL = (uint8)TOP_value;
+			SET_BIT(TCCR1A, COM1A0);	// ensure that mode of OC1A pin is Toggle
+			CLEAR_BIT(TCCR1A, COM1A1);
+		}
+		else
+		{
+			// invalid mode for generating waveform	!
+			ret = E_NOT_OK;
+		}
+	}
+	return ret;
+}
+#endif
+#if TIMER1_MODE		==	TIMER1_PWM_MODE
+Std_ReturnType timer1_pwm_set_duty_cycle(const timer1_t* tmr_obj, uint8 output_pin, uint8 duty_cycle)
+{
+	/* this function works with all PWM modes */
+	Std_ReturnType ret = E_OK;
+	// compare value define duty cycle
+	if(tmr_obj == NULL)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		ret = set_pwm_set_duty_cycle(tmr_obj, output_pin, duty_cycle);
+	}
+	return ret;
+}
+Std_ReturnType timer1_pwm_set_freq(const timer1_t* tmr_obj, uint32 PWM_freq)
+{
+	/** this function working with
+	 * Fast and Phase and Phase and frequency correct PWM modes that have non fixed values
+	 * */
+	// TOP value define wave frequency
+	Std_ReturnType ret = E_OK;
+	if(tmr_obj == NULL)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		switch(tmr_obj->timer1_general_mode)
+		{
+		case TIMER1_FAST_PWM_TOP_ICR_MODE:
+		case TIMER1_PC_PWM_TOP_ICR_MODE:
+		case TIMER1_PFC_PWM_TOP_ICR_MODE:
+		case TIMER1_PC_PWM_TOP_OCR1A_MODE:
+		case TIMER1_FAST_PWM_TOP_OCR1A_MODE:
+		case TIMER1_PFC_PWM_TOP_OCR1A_MODE:	ret = set_pwm_freq(tmr_obj, PWM_freq);
+		break;
+		default:	ret = E_NOT_OK;
+			break;
+		}
+	}
+	return ret;
+}
+Std_ReturnType timer1_pwm_start(const timer1_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	if(tmr_obj == NULL)
+	{
+		ret  = E_NOT_OK;
+	}
+	else
+	{
+		switch(tmr_obj->timer1_OC1A_pin_state)
+		{
+		case TIMER1_INVERTED_PWM: 		TCCR1A |= 0xC0;
+			break;
+		case TIMER1_NON_INVERTED_PWM:	CLEAR_BIT(TCCR1A, COM1A0);
+										SET_BIT(TCCR1A, COM1A1);
+			break;
+		case TIMER1_TOGGLE_OC1A_PWM:	SET_BIT(TCCR1A, COM1A0);
+										CLEAR_BIT(TCCR1A, COM1A1);
+			break;
+		default:	TCCR1A &= 0x3F;		// pin OC1A disconnected
+			break;
+		}
+		switch(tmr_obj->timer1_OC1B_pin_state)
+		{
+		case TIMER1_INVERTED_PWM: 		TCCR1A |= 0x30;
+			break;
+		case TIMER1_NON_INVERTED_PWM:	CLEAR_BIT(TCCR1A, COM1B0);
+										SET_BIT(TCCR1A, COM1B1);
+			break;
+		default:	TCCR1A &= 0xCF;		// pin OC1B disconnected
+			break;
+		}
+	}
+	return ret;
+}
+Std_ReturnType timer1_pwm_stop(uint8 tmr_output_pin)
+{
+	Std_ReturnType ret = E_OK;
+	if(tmr_output_pin == OC1A_PIN)
+	{
+		TCCR1A &= 0x3F;		// pin OC1A disconnected
+	}
+	else if(tmr_output_pin == OC1B_PIN)
+	{
+		TCCR1A &= 0xCF;		// pin OC1B disconnected
+	}
+	else if (tmr_output_pin == OC1A_OC1B_PINs)
+	{
+		TCCR1A &= 0x0F;		// pin OC1A and OC1B disconnected
+	}
+
+	return ret;
+}
+#endif
+
+/* ------------------------------ Helper Functions Definitions ------------------------------ */
+static Std_ReturnType timer1_set_general_mode(const timer1_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	switch(tmr_obj->timer1_general_mode)
+	{
+	case TIMER1_CLEAR_TIMER_COMPARE_ICR1_MODE:	TCCR1A = 0; TCCR1B = 0x18;
+		break;
+	case TIMER1_CLEAR_TIMER_COMPARE_OCR1A_MODE:	TCCR1A = 0; TCCR1B = 0x08;
+		break;
+	case TIMER1_FAST_PWM_TOP_FIXED_FF_MODE:		TCCR1A = 1; TCCR1B = 0x08;
+		break;
+	case TIMER1_FAST_PWM_TOP_FIXED_1FF_MODE:	TCCR1A = 2; TCCR1B = 0x08;
+		break;
+	case TIMER1_FAST_PWM_TOP_FIXED_3FF_MODE:	TCCR1A = 3; TCCR1B = 0x08;
+		break;
+	case TIMER1_FAST_PWM_TOP_ICR_MODE:			TCCR1A = 2; TCCR1B = 0x18;
+		break;
+	case TIMER1_FAST_PWM_TOP_OCR1A_MODE:		TCCR1A = 3; TCCR1B = 0x18;
+		break;
+	case TIMER1_PC_PWM_TOP_FIXED_FF_MODE:		TCCR1A = 1; TCCR1B = 0x00;
+		break;
+	case TIMER1_PC_PWM_TOP_FIXED_1FF_MODE:		TCCR1A = 2; TCCR1B = 0x00;
+		break;
+	case TIMER1_PC_PWM_TOP_FIXED_3FF_MODE:		TCCR1A = 3; TCCR1B = 0x00;
+		break;
+	case TIMER1_PC_PWM_TOP_ICR_MODE:			TCCR1A = 2; TCCR1B = 0x10;
+		break;
+	case TIMER1_PC_PWM_TOP_OCR1A_MODE:			TCCR1A = 3; TCCR1B = 0x10;
+		break;
+	case TIMER1_PFC_PWM_TOP_ICR_MODE:			TCCR1A = 0; TCCR1B = 0x10;
+		break;
+	case TIMER1_PFC_PWM_TOP_OCR1A_MODE:			TCCR1A = 1; TCCR1B = 0x10;
+		break;
+	default:									TCCR1A = 0; TCCR1B = 0;	// NORMAL Mode
+		break;
+	}
+	return ret;
+}
+static void timer1_set_clock_source(const timer1_t* tmr_obj)
+{
+	if (tmr_obj->timer1_clk_src == TIMER1_INTERNAL_CLK_SOURCE)
+	{
+		switch(tmr_obj->timer1_prescaler_value)
+		{
+		case TIMER1_PRESCALER_VALUE_DIV_BY_1:		SET_BIT(TCCR1B, CS10);
+													TCCR1B &= 0xF9;
+			break;
+		case TIMER1_PRESCALER_VALUE_DIV_BY_8:		TCCR1B &= 0xFA;
+													SET_BIT(TCCR1B, CS11);
+			break;
+		case TIMER1_PRESCALER_VALUE_DIV_BY_64:		TCCR1B |= 0x03;
+													CLEAR_BIT(TCCR1B, CS12);
+			break;
+		case TIMER1_PRESCALER_VALUE_DIV_BY_256:		TCCR1B &= 0xFC;
+													SET_BIT(TCCR1B, CS12);
+			break;
+		case TIMER1_PRESCALER_VALUE_DIV_BY_1024:	TCCR1B |= 0x05;
+													CLEAR_BIT(TCCR1B, CS11);
+			break;
+		default: 	SET_BIT(TCCR1B, CS10);
+					TCCR1B &= 0xF9;
+			break;
+		}
+	}
+	else if(tmr_obj->timer1_clk_src == TIMER1_EXTERNAL_CLK_SOURCE)
+	{
+		switch(tmr_obj->timer1_edge_detect)
+		{
+		case TIMER1_EXTERNAL_CLK_RISING_EDGE:		TCCR1B |= 0x07;
+			break;
+		case TIMER1_EXTERNAL_CLK_FALLING_EDGE:		CLEAR_BIT(TCCR1B, CS10);
+													TCCR1B |= 0x06;
+			break;
+		default:	TCCR1B |= 0x07;
+			break;
+		}
+		CLEAR_BIT(DDRB, DDB1);	// set T1 pin as Digital i/p for Counter mode
+	}
+	else
+	{
+		SET_BIT(TCCR1B, CS10);\
+													TCCR1B &= 0xF9;
+	}
+}
+#if ((TIMER1_MODE		==	TIMER1_CTC_MODE) || (TIMER1_MODE		==	TIMER1_PWM_MODE))
+static Std_ReturnType timer1_set_output_pins_mode(const timer1_t* tmr_obj)
+{
+	Std_ReturnType ret = E_OK;
+	switch(tmr_obj->timer1_OC1A_pin_state)
+	{
+	case TIMER1_CTC_SET_PIN:
+	case TIMER1_INVERTED_PWM:		TCCR1A |= 0xC0;
+									SET_BIT(DDRD, PD5);
+		break;
+	case TIMER1_CTC_CLEAR_PIN:
+	case TIMER1_NON_INVERTED_PWM:	CLEAR_BIT(TCCR1A, COM1A0);
+									SET_BIT(TCCR1A, COM1A1);
+									SET_BIT(DDRD, PD5);
+		break;
+	case TIMER1_CTC_TOGGLE_PIN:
+		// works only with modes WGM10:3 bits = (9,14,15)
+	case TIMER1_TOGGLE_OC1A_PWM:	SET_BIT(TCCR1A, COM1A0);
+									CLEAR_BIT(TCCR1A, COM1A1);
+									SET_BIT(DDRD, PD5);
+		break;
+	default:	TCCR1A &= 0x3F;		// OC1A is disconnected
+		break;
+	}
+	switch(tmr_obj->timer1_OC1B_pin_state)
+	{
+	case TIMER1_CTC_SET_PIN:
+	case TIMER1_INVERTED_PWM:		TCCR1A |= 0x30;
+									SET_BIT(DDRD, PD4);
+		break;
+	case TIMER1_CTC_CLEAR_PIN:
+	case TIMER1_NON_INVERTED_PWM:	CLEAR_BIT(TCCR1A, COM1B0);
+									SET_BIT(TCCR1A, COM1B1);
+									SET_BIT(DDRD, PD4);
+		break;
+	case TIMER1_CTC_TOGGLE_PIN:		SET_BIT(TCCR1A, COM1B0);
+									CLEAR_BIT(TCCR1A, COM1B1);
+									SET_BIT(DDRD, PD4);
+		break;
+	default:	TCCR1A &= 0xCF;			// OC1B is disconnected
+		break;
+	}
+	return ret;
+}
+#endif
+
+#if TIMER1_MODE		==	TIMER1_PWM_MODE
+static Std_ReturnType set_pwm_set_duty_cycle(const timer1_t* tmr_obj,  uint8 output_pin, uint8 duty_cycle)
+{
+	uint16 new_compare_value=0;
+	Std_ReturnType ret = E_OK;
+	switch(tmr_obj->timer1_general_mode)
+	{
+	case TIMER1_PC_PWM_TOP_FIXED_FF_MODE:
+	case TIMER1_FAST_PWM_TOP_FIXED_FF_MODE:	if(tmr_obj->timer1_OC1A_pin_state == TIMER1_INVERTED_PWM||
+												tmr_obj->timer1_OC1B_pin_state == TIMER1_INVERTED_PWM)
+											{
+												new_compare_value = (uint16)((1-(duty_cycle/100.0)) *
+														(float)TIMER1_FIXED_TOP_VALUE_1);
+											}
+											else if(tmr_obj->timer1_OC1A_pin_state == TIMER1_NON_INVERTED_PWM||
+													tmr_obj->timer1_OC1B_pin_state == TIMER1_NON_INVERTED_PWM)
+											{
+												new_compare_value =(uint16)((duty_cycle/100.0) *
+														(float)TIMER1_FIXED_TOP_VALUE_1);
+											}
+	break;
+	case TIMER1_PC_PWM_TOP_FIXED_1FF_MODE:
+	case TIMER1_FAST_PWM_TOP_FIXED_1FF_MODE: if(tmr_obj->timer1_OC1A_pin_state == TIMER1_INVERTED_PWM||
+												tmr_obj->timer1_OC1B_pin_state == TIMER1_INVERTED_PWM)
+											{
+												new_compare_value = (uint16)((1-(duty_cycle/100.0)) *
+														(float)TIMER1_FIXED_TOP_VALUE_2);
+											}
+											else if(tmr_obj->timer1_OC1A_pin_state == TIMER1_NON_INVERTED_PWM||
+													tmr_obj->timer1_OC1B_pin_state == TIMER1_NON_INVERTED_PWM)
+											{
+												new_compare_value =(uint16)((duty_cycle/100.0) *
+														(float)TIMER1_FIXED_TOP_VALUE_2);
+											}
+	break;
+	case TIMER1_FAST_PWM_TOP_FIXED_3FF_MODE:
+	case TIMER1_PC_PWM_TOP_FIXED_3FF_MODE:	if(tmr_obj->timer1_OC1A_pin_state == TIMER1_INVERTED_PWM||
+												tmr_obj->timer1_OC1B_pin_state == TIMER1_INVERTED_PWM)
+											{
+												new_compare_value = (uint16)((1-(duty_cycle/100.0)) *
+														(float)TIMER1_FIXED_TOP_VALUE_3);
+											}
+											else if(tmr_obj->timer1_OC1A_pin_state == TIMER1_NON_INVERTED_PWM||
+													tmr_obj->timer1_OC1B_pin_state == TIMER1_NON_INVERTED_PWM)
+											{
+												new_compare_value =(uint16)((duty_cycle/100.0) *
+														(float)TIMER1_FIXED_TOP_VALUE_3);
+											}
+	break;
+	case TIMER1_FAST_PWM_TOP_ICR_MODE:
+	case TIMER1_PC_PWM_TOP_ICR_MODE:
+	case TIMER1_PFC_PWM_TOP_ICR_MODE:	if(tmr_obj->timer1_OC1A_pin_state == TIMER1_INVERTED_PWM||
+											tmr_obj->timer1_OC1B_pin_state == TIMER1_INVERTED_PWM)
+										{
+											new_compare_value = (uint16)((1-(duty_cycle/100.0)) * ICR1);
+										}
+										else if(tmr_obj->timer1_OC1A_pin_state == TIMER1_NON_INVERTED_PWM||
+												tmr_obj->timer1_OC1B_pin_state == TIMER1_NON_INVERTED_PWM)
+										{
+											new_compare_value =(uint16)((duty_cycle/100.0) * ICR1);
+										}
+	break;
+	case TIMER1_FAST_PWM_TOP_OCR1A_MODE:
+	case TIMER1_PC_PWM_TOP_OCR1A_MODE:
+	case TIMER1_PFC_PWM_TOP_OCR1A_MODE:	if(tmr_obj->timer1_OC1A_pin_state == TIMER1_INVERTED_PWM||
+											tmr_obj->timer1_OC1B_pin_state == TIMER1_INVERTED_PWM)
+										{
+											new_compare_value = (uint16)((1-(duty_cycle/100.0)) * OCR1A);
+										}
+										else if(tmr_obj->timer1_OC1A_pin_state == TIMER1_NON_INVERTED_PWM||
+												tmr_obj->timer1_OC1B_pin_state == TIMER1_NON_INVERTED_PWM)
+										{
+											new_compare_value =(uint16)((duty_cycle/100.0) *  OCR1A);
+										}
+	break;
+	default: ret = E_NOT_OK;
+			break;
+	}
+	if(ret == E_OK)
+	{
+		if(output_pin == OC1A_PIN){OCR1A = new_compare_value;}
+		else if(output_pin == OC1B_PIN){OCR1B = new_compare_value;}
+		else if(output_pin == OC1A_OC1B_PINs)
+		{OCR1A = new_compare_value; OCR1B = new_compare_value;}
+	}
+	return ret;
+}
+
+static Std_ReturnType set_pwm_freq(const timer1_t* tmr_obj, uint32 freq)
+{
+	uint16 new_TOP_value=0;
+	Std_ReturnType ret = E_OK;
+	if(freq > (uint32)(F_CPU/(2.0*prescaler_value_map[tmr_obj->timer1_prescaler_value])))
+	{
+		ret = E_NOT_OK;
+	}
+	else
+	{
+		if(tmr_obj->timer1_general_mode == TIMER1_FAST_PWM_TOP_ICR_MODE ||
+				tmr_obj->timer1_general_mode == TIMER1_FAST_PWM_TOP_OCR1A_MODE)
+		{	// frequency equation for Fast PWM modes
+			new_TOP_value = ((float)(F_CPU) /
+					((float)freq*prescaler_value_map[tmr_obj->timer1_prescaler_value])) - 1;
+		}
+		else
+		{	// frequency equation for other PWM modes
+			new_TOP_value = ((float)(F_CPU) /
+					(2.0*freq*prescaler_value_map[tmr_obj->timer1_prescaler_value]));
+		}
+		// Update Register ICR1 that defines the TOP value
+		if(tmr_obj->timer1_general_mode == TIMER1_FAST_PWM_TOP_ICR_MODE ||
+				tmr_obj->timer1_general_mode == TIMER1_PFC_PWM_TOP_ICR_MODE||
+				tmr_obj->timer1_general_mode == TIMER1_PC_PWM_TOP_ICR_MODE)
+		{
+			if(new_TOP_value >= OCR1A && new_TOP_value >= OCR1B)
+			{
+				ICR1H = (uint8)(new_TOP_value >> 8);
+				ICR1L = (uint8)new_TOP_value;
+			}
+			else{ret = E_NOT_OK;}
+		}
+		// Update Register OCR1A that defines the TOP value
+		else if (tmr_obj->timer1_general_mode == TIMER1_FAST_PWM_TOP_OCR1A_MODE ||
+				tmr_obj->timer1_general_mode == TIMER1_PFC_PWM_TOP_OCR1A_MODE||
+				tmr_obj->timer1_general_mode == TIMER1_PC_PWM_TOP_OCR1A_MODE)
+		{
+			// OCR1A compare register is used to define Top value o/p should be OC1B
+			if(new_TOP_value >= OCR1B) {
+				OCR1AH = (uint8)(new_TOP_value >> 8);
+				OCR1AL = (uint8)new_TOP_value;
+			}
+			else{ret = E_NOT_OK;}
+		}
+	}
+	return ret;
+}
+#endif
+/* Implement ISRs for the four Sources Interrupts related to TIMER1 */
+#if TIMER1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+#if TIMER1_OV1_INTERRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+ISR(TIMER1_OVF_vect)
+{
+	/* ISR code */
+	if(tmr1_IRQHandller_OVF)
+		tmr1_IRQHandller_OVF();
+	// clear TIMER0_COMP flag happen automatically
+}
+#endif
+#if	TIMER1_OC1A_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+ISR(TIMER1_COMPA_vect)
+{
+	/* ISR code */
+	if(tmr1_IRQHandller_OC1A)
+		tmr1_IRQHandller_OC1A();
+	// clear TIMER1_COMPA flag happen automatically
+}
+#endif
+#if	TIMER1_OC1B_INTERRRUPT_FEATURE == INTERRUPT_FEATURE_ENABLE
+ISR(TIMER1_COMPB_vect)
+{
+	/* ISR code */
+	// use the callback function
+	if(tmr1_IRQHandller_OC1B)
+		tmr1_IRQHandller_OC1B();
+	// clear TIMER1_COMPB flag happen automatically
+}
+#endif
+#endif
+
+
+#endif

@@ -1,0 +1,82 @@
+/*
+ * usart.h
+ *
+ *  Created on: Apr 5, 2023
+ *      Author: ahmed
+ */
+
+#ifndef USART_USART_H_
+#define USART_USART_H_
+
+
+
+/* -------------------- Includes -------------------- */
+#include "../../micro_config.h"
+#include "../../std_types.h"
+#include "../../common_macros.h"
+#include "../Interrupt_Driver/INT_Internal.h"
+
+#if USART_MODULE == MODULE_ENABLE
+/* -------------------- MACRO Definitions -------------------- */
+#define USART_ASYNC_NORMAL_SPEED_MODE						0
+#define USART_ASYNC_DOUBLE_SPEED_MODE						1
+#define USART_SYNC_MODE										2
+
+//#define USART_MULTI_PROCESSOR_COMM_ENABLE					1
+//#define USART_MULTI_PROCESSOR_COMM_DISABLE				0
+
+#define USART_PARITY_DISABLE								0
+#define EVEN_PARITY											2
+#define ODD_PARITY											3
+
+#define USART_RX_ENABLE										1
+#define USART_RX_DISABLE									0
+#define USART_TX_ENABLE										1
+#define USART_TX_DISABLE									0
+
+#define RX_INTERUPT_ENABLE									1
+#define TX_INTERUPT_ENABLE									1
+/* -------------------- MACRO Functions Definitions -------------------- */
+
+/* -------------------- Data Type Declarations -------------------- */
+
+typedef union{
+	struct{
+		uint8 reserved1					: 2;
+		uint8 usart_pe 					: 1;		// parity error	(bit-2)
+		uint8 usart_dov 				: 1;		// data over run error (bit-3)
+		uint8 usart_ferr				: 1;		// frame error (stop bit is not detected correctly) (bit-4)
+		uint8 reserved2					: 3;
+	};
+	uint8 flag_status;
+}usart_error_status_t;
+
+typedef struct{
+	void (*USART_TxInterruptHandler)(void);
+	void (*USART_RxInterruptHandler)(void);
+	uint8 usart_rx_enable 			: 1;
+	uint8 usart_rx_interrupt_enable : 1;
+	uint8 usart_tx_enable 			: 1;
+	uint8 usart_tx_interrupt_enable : 1;
+	uint8 usart_character_size		: 4;
+
+	uint8 usart_mode				: 2;		// SYNC or ASYNC
+	uint8 usart_parity				: 2;		// disable, Even or Odd
+	uint8 usart_reserved1			: 4;
+	usart_error_status_t error_status;
+    uint32 baudrate;
+}usart_t;
+
+
+/* -------------------- Software Interfaces -------------------- */
+Std_ReturnType USART_Init(const usart_t* _obj);
+Std_ReturnType USART_Send_Byte_Blocking(const uint8 _data_byte);
+Std_ReturnType USART_Receive_Byte_Blocking(usart_t* _obj, uint8* _data_byte);
+Std_ReturnType USART_sendString_Blocking(const uint8 *Str);
+Std_ReturnType USART_receiveString_Blocking(usart_t* _obj, uint8 *Str); // Receive until #
+
+Std_ReturnType USART_Send_Byte(const uint8 _data_byte);
+#endif
+
+#endif /* USART_USART_H_ */
+
