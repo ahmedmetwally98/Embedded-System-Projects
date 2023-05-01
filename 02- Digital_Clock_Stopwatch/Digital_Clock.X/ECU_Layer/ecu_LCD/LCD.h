@@ -1,0 +1,91 @@
+/* 
+ * File:   LCD.h
+ * Author: ahmed
+ *
+ * Created on March 2, 2023, 3:01 AM
+ */
+
+#ifndef LCD_H
+#define	LCD_H
+
+/* ----------------- Includes ----------------- */
+#include "../../MCAL_Layer/GPIO/hal_gpio.h"
+
+/* ----------------- MACRO Declarations ----------------- */
+#define ROW1                            0x01
+#define ROW2                            0x02
+#define ROW3                            0x03
+#define ROW4                            0x04
+
+// LCD mode configuration defines 
+#define CHAR_LCD_8BIT_MODE              0x08
+#define CHAR_LCD_4BIT_MODE              0x04
+#define LCD_MODE                CHAR_LCD_4BIT_MODE
+
+// LCD Commands
+#define _LCD_4BIT_MODE_1LINES_COMMAND          0x20
+#define _LCD_8BIT_MODE_1LINES_COMMAND          0x30
+#define _LCD_4BIT_MODE_2LINES_COMMAND          0X28
+#define _LCD_8BIT_MODE_2LINES_COMMAND          0X38
+
+#define _LCD_CLEAR                             0x01
+#define _LCD_RETURN_HOME                       0x02
+
+#define _LCD_ENTRY_MODE_INC_NO_SHIFT           0x06
+#define _LCD_ENTRY_MODE_DEC_NO_SHIFT           0x04
+
+#define _LCD_CURSOR_OFF_DISPLAY_ON             0x0C
+#define _LCD_CURSOR_OFF_DISPLAY_OFF            0x08
+#define _LCD_CURSOR_OFF_BLINK_ON               0x0D
+#define _LCD_CURSOR_ON_BLINK_OFF               0x0E
+#define _LCD_CURSOR_ON_BLINK_ON                0x0F
+
+#define _LCD_DISPLAY_SHIFT_RIGHT               0x1C
+#define _LCD_DISPLAY_SHIFT_LEFT                0x18
+#define _LCD_CURSOR_MOVE_RIGHT                 0x14
+#define _LCD_CURSOR_MOVE_LEFT                  0x10
+               
+
+// for addressing DDRAM or CGRAM (DDRAM_START_ADDRESS(base) + offset)
+#define DDRAM_START_ADDRESS             0x80
+#define CGRAM_START_ADDRESS             0x40
+
+/* ----------------- MACRO Function Declarations ----------------- */
+
+/* ----------------- Data Type Declarations ----------------- */
+typedef struct {
+    pin_config_t RS_pin;
+    pin_config_t E_pin;
+#if LCD_MODE == CHAR_LCD_8BIT_MODE
+    pin_config_t lcd_data_pins[8];
+#elif LCD_MODE == CHAR_LCD_4BIT_MODE
+    pin_config_t lcd_data_pins[4];
+#endif
+}char_lcd_t;
+
+/* ----------------- Functions Declarations ----------------- */
+#if (LCD_MODE == CHAR_LCD_4BIT_MODE)
+Std_ReturnType lcd_4bit_initialize(const char_lcd_t* lcd_obj);
+Std_ReturnType lcd_4bit_send_command(const char_lcd_t* lcd_obj, uint8 lcd_command);
+Std_ReturnType lcd_4bit_send_char_data(const char_lcd_t* lcd_obj, uint8 lcd_data);
+Std_ReturnType lcd_4bit_send_char_data_pos(const char_lcd_t* lcd_obj, uint8 row, uint8 col, uint8 lcd_data);
+Std_ReturnType lcd_4bit_send_string_data(const char_lcd_t* lcd_obj, uint8* str);
+Std_ReturnType lcd_4bit_send_string_data_pos(const char_lcd_t* lcd_obj, uint8 row, uint8 col, uint8* str);
+Std_ReturnType lcd_4bit_send_custom_char(const char_lcd_t* lcd_obj, uint8 row, uint8 col, const uint8 _char[], uint8 mem_pos);
+
+#elif (LCD_MODE == CHAR_LCD_8BIT_MODE)
+Std_ReturnType lcd_8bit_initialize(const char_lcd_t* lcd_obj);
+Std_ReturnType lcd_8bit_send_command(const char_lcd_t* lcd_obj, uint8 lcd_command);
+Std_ReturnType lcd_8bit_send_char_data(const char_lcd_t* lcd_obj, uint8 lcd_data);
+Std_ReturnType lcd_8bit_send_char_data_pos(const char_lcd_t* lcd_obj, uint8 row, uint8 col, uint8 lcd_data);
+Std_ReturnType lcd_8bit_send_string_data(const char_lcd_t* lcd_obj, uint8* str);
+Std_ReturnType lcd_8bit_send_string_data_pos(const char_lcd_t* lcd_obj, uint8 row, uint8 col, uint8* str);
+Std_ReturnType lcd_4bit_send_custom_char(const char_lcd_t* lcd_obj, uint8 row, uint8 col, const uint8 _char[], uint8 mem_pos);
+#endif
+
+Std_ReturnType LCD_convert_byte_to_string(uint8, uint8* str);
+Std_ReturnType LCD_convert_short_to_string(uint16, uint8* str);
+Std_ReturnType LCD_convert_int_to_string(uint32, uint8* str);
+
+#endif	/* LCD_H */
+

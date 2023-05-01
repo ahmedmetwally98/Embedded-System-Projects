@@ -1,0 +1,90 @@
+/* 
+ * File:   Keypad_matrix.h
+ * Author: ahmed
+ *
+ * Created on March 1, 2023, 2:33 PM
+ */
+
+#include "Keypad_matrix.h"
+
+static const uint8 btn_values[KEYPAD_MATRIX_ROWS][KEYPAD_MATRIX_COLS] = {
+                                                                        {'7', '8', '9', '/'},
+                                                                        {'4', '5', '6', '*'},
+                                                                        {'1', '2', '3', '-'},
+                                                                        {'#', '0', '=', '+'}
+                                                                        };
+
+/**
+ * @brief initialize all pins assigned to keypad device
+ * @param key_obj
+ * @return Status of the Function
+ *          E_OK     : The Function done successfully
+ *          E_NOT_OK : The Function has issue to perform this task
+ */
+Std_ReturnType Keypad_init(const keypad_matrix_t* key_obj)
+{
+    Std_ReturnType ret = E_NOT_OK;
+    uint8 row_counter=ZERO_INIT, col_counter=ZERO_INIT;
+    if (key_obj == NULL)
+    {
+        ret = E_NOT_OK;
+    }
+    else
+    {
+        for (row_counter=ZERO_INIT; row_counter<KEYPAD_MATRIX_ROWS; row_counter++)
+        {
+            ret = GPIO_pin_initialize(&(key_obj->keypad_rows_pins[row_counter]));
+        }
+        for(col_counter=ZERO_INIT; col_counter<KEYPAD_MATRIX_COLS; col_counter++)
+        {
+            ret = GPIO_pin_direction_initialize(&(key_obj->keypad_cols_pins[col_counter]));
+        }
+    }
+    return ret; 
+}
+
+/**
+ * @brief getting pressed value from keypad matrix device
+ * @param key_obj
+ * @param value
+ * @return Status of the Function
+ *          E_OK     : The Function done successfully
+ *          E_NOT_OK : The Function has issue to perform this task
+ */
+Std_ReturnType Keypad_getValue(const keypad_matrix_t* key_obj, uint8* value)
+{
+    Std_ReturnType ret, state = E_NOT_OK;
+    volatile uint8 row_counter=ZERO_INIT, col_counter=ZERO_INIT, counter=ZERO_INIT; 
+    logic_t col_logic = GPIO_LOW;
+    if ((key_obj == NULL) || ( NULL == value))
+    {
+        ret = E_NOT_OK;
+    }
+    else
+    {
+        while(1)
+        {
+        for(row_counter=0; row_counter<KEYPAD_MATRIX_ROWS; row_counter++)
+        {
+            for(counter=0; counter<KEYPAD_MATRIX_ROWS; counter++)
+            {   // write zero logic on all row pins 
+                state= GPIO_pin_write_logic(&(key_obj->keypad_rows_pins[counter]), GPIO_LOW);
+            }
+            // activate only one row and scan all columns
+            state= GPIO_pin_write_logic(&(key_obj->keypad_rows_pins[row_counter]), GPIO_HIGH);
+            __delay_ms(5);
+            for(col_counter=0; col_counter<KEYPAD_MATRIX_COLS; col_counter++)
+            {
+                state= GPIO_pin_read_logic(&(key_obj->keypad_cols_pins[col_counter]), &col_logic);
+                if(col_logic == GPIO_HIGH)
+                {   // Button has been pressed, saving pressed value
+                    *value = btn_values[row_counter][col_counter];
+                    ret = E_OK;
+                    return ret;
+                }
+            }
+        }
+        }
+    }
+    return ret; 
+}
