@@ -19,49 +19,57 @@ uint8 g_operand_len = 0;
 uint8 invalid_operator_flag = 0;
 uint8 invalid_num_len_flag = 0;
 
+
+uint8 new_op_flag = 1;
 int main(void)
 {
 	application_initialize();
 
 	while(1)
 	{
-		// get the key value
-		g_key_value = 0;
-		do
+		if(new_op_flag)
 		{
-			ret = Keypad_getValue(&g_keypadObj, &g_key_value);
-		} while( g_key_value == 0 );
-		ret = lcd_4bit_send_char_data(&g_lcdObj_4bitMode, g_key_value);
-
-		if(g_key_value >= '0' && g_key_value <= '9')
-		{	// key_value is a valid number
-			get_operand(g_key_value);
-		}
-		else if(g_key_value != '=')
-		{	// take operator from user
-			get_operation(g_key_value);
-		}
-		else if(g_key_value == '=')
-		{
-			ret = check_operation();
-			if(E_OK == ret)
+			// get the key value
+			g_key_value = 0;
+			do
 			{
-				if(g_operator == 0)
-				{
-					show_operation_result(g_firstnum);
-				}
-				else
-				{
-					g_resultNum = get_result(g_operandNum1, g_operandNum2, g_operator);
-					ret = LCD_convert_int_to_string(g_resultNum, &g_resultStr[0]);
-					show_operation_result(g_resultStr);
-				}
+				ret = Keypad_getValue(&g_keypadObj, &g_key_value);
+			} while( g_key_value == 0 );
+			ret = lcd_4bit_send_char_data(&g_lcdObj_4bitMode, g_key_value);
+
+			if(g_key_value >= '0' && g_key_value <= '9')
+			{	// key_value is a valid number
+				get_operand(g_key_value);
 			}
-			else if(E_NOT_OK == ret)
-			{	// error happen
-				show_error_msg();
+			else if(g_key_value != '=')
+			{	// take operator from user
+				get_operation(g_key_value);
+			}
+			else if(g_key_value == '=')
+			{
+				ret = check_operation();
+				// operation finished indication
+				new_op_flag = 0;
+				if(E_OK == ret)
+				{
+					if(g_operator == 0)
+					{
+						show_operation_result(g_firstnum);
+					}
+					else
+					{
+						g_resultNum = get_result(g_operandNum1, g_operandNum2, g_operator);
+						ret = LCD_convert_int_to_string(g_resultNum, &g_resultStr[0]);
+						show_operation_result(g_resultStr);
+					}
+				}
+				else if(E_NOT_OK == ret)
+				{	// error happen
+					show_error_msg();
+				}
 			}
 		}
+		
 	}
 	return 0;
 }
@@ -81,6 +89,7 @@ void interrupt_callBackNotify(void)
 	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, _LCD_CLEAR);
 	ret = lcd_4bit_send_string_data_pos(&g_lcdObj_4bitMode, 1, 2,  "Simple Calculator");
 	ret = lcd_4bit_send_command(&g_lcdObj_4bitMode, DDRAM_START_ADDRESS + ROW2_OFFSET);
+	new_op_flag = 1;
 }
 
 void get_operand(uint8 key_val)

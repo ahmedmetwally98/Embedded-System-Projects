@@ -158,7 +158,7 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x30b4
+.text           0x00000000     0x30c8
  *(.vectors)
  .vectors       0x00000000       0x54 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm16.o
                 0x00000000                __vectors
@@ -384,60 +384,60 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
                 0x000027a8       0x8a ./HAL_init/Keypad/Keypad_matrix.o
                 0x000027a8                Keypad_init
  .text.Keypad_getValue
-                0x00002832      0x1cc ./HAL_init/Keypad/Keypad_matrix.o
+                0x00002832      0x1ce ./HAL_init/Keypad/Keypad_matrix.o
                 0x00002832                Keypad_getValue
  .text.HAL_init
-                0x000029fe       0x4c ./HAL_init/hal_init.o
-                0x000029fe                HAL_init
- .text.main     0x00002a4a      0x114 ./APP_layer/App.o
-                0x00002a4a                main
+                0x00002a00       0x4c ./HAL_init/hal_init.o
+                0x00002a00                HAL_init
+ .text.main     0x00002a4c      0x120 ./APP_layer/App.o
+                0x00002a4c                main
  .text.application_initialize
-                0x00002b5e       0x1e ./APP_layer/App.o
-                0x00002b5e                application_initialize
+                0x00002b6c       0x1e ./APP_layer/App.o
+                0x00002b6c                application_initialize
  .text.interrupt_callBackNotify
-                0x00002b7c       0x42 ./APP_layer/App.o
-                0x00002b7c                interrupt_callBackNotify
+                0x00002b8a       0x48 ./APP_layer/App.o
+                0x00002b8a                interrupt_callBackNotify
  .text.get_operand
-                0x00002bbe      0x102 ./APP_layer/App.o
-                0x00002bbe                get_operand
+                0x00002bd2      0x102 ./APP_layer/App.o
+                0x00002bd2                get_operand
  .text.get_operation
-                0x00002cc0       0x34 ./APP_layer/App.o
-                0x00002cc0                get_operation
+                0x00002cd4       0x34 ./APP_layer/App.o
+                0x00002cd4                get_operation
  .text.check_operation
-                0x00002cf4       0x66 ./APP_layer/App.o
-                0x00002cf4                check_operation
+                0x00002d08       0x66 ./APP_layer/App.o
+                0x00002d08                check_operation
  .text.get_result
-                0x00002d5a      0x11e ./APP_layer/App.o
-                0x00002d5a                get_result
+                0x00002d6e      0x11e ./APP_layer/App.o
+                0x00002d6e                get_result
  .text.show_error_msg
-                0x00002e78       0x48 ./APP_layer/App.o
-                0x00002e78                show_error_msg
+                0x00002e8c       0x48 ./APP_layer/App.o
+                0x00002e8c                show_error_msg
  .text.show_operation_result
-                0x00002ec0       0x3e ./APP_layer/App.o
-                0x00002ec0                show_operation_result
+                0x00002ed4       0x3e ./APP_layer/App.o
+                0x00002ed4                show_operation_result
  .text.reset_values
-                0x00002efe       0x82 ./APP_layer/App.o
-                0x00002efe                reset_values
- .text.libgcc   0x00002f80       0x3e c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_mulsi3.o)
-                0x00002f80                __mulsi3
- .text.libgcc   0x00002fbe       0x18 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_udivmodqi4.o)
-                0x00002fbe                __udivmodqi4
- .text.libgcc   0x00002fd6       0x28 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_udivmodhi4.o)
-                0x00002fd6                __udivmodhi4
- .text.libgcc   0x00002ffe       0x44 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_udivmodsi4.o)
-                0x00002ffe                __udivmodsi4
- .text.libgcc   0x00003042        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
- .text.libgcc   0x00003042        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
- .text.libgcc   0x00003042        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
- .text.libgcc   0x00003042       0x38 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_prologue.o)
-                0x00003042                __prologue_saves__
- .text.libgcc   0x0000307a       0x36 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_epilogue.o)
-                0x0000307a                __epilogue_restores__
-                0x000030b0                . = ALIGN (0x2)
+                0x00002f12       0x82 ./APP_layer/App.o
+                0x00002f12                reset_values
+ .text.libgcc   0x00002f94       0x3e c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_mulsi3.o)
+                0x00002f94                __mulsi3
+ .text.libgcc   0x00002fd2       0x18 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_udivmodqi4.o)
+                0x00002fd2                __udivmodqi4
+ .text.libgcc   0x00002fea       0x28 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_udivmodhi4.o)
+                0x00002fea                __udivmodhi4
+ .text.libgcc   0x00003012       0x44 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_udivmodsi4.o)
+                0x00003012                __udivmodsi4
+ .text.libgcc   0x00003056        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .text.libgcc   0x00003056        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc   0x00003056        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00003056       0x38 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_prologue.o)
+                0x00003056                __prologue_saves__
+ .text.libgcc   0x0000308e       0x36 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_epilogue.o)
+                0x0000308e                __epilogue_restores__
+                0x000030c4                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000030b0        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
-                0x000030b0                exit
-                0x000030b0                _exit
+ .fini9         0x000030c4        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                0x000030c4                exit
+                0x000030c4                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -456,11 +456,11 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000030b0        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .fini0         0x000030c4        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x000030b4                _etext = .
+                0x000030c8                _etext = .
 
-.data           0x00800060       0x96 load address 0x000030b4
+.data           0x00800060       0x96 load address 0x000030c8
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800060        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm16.o
@@ -508,19 +508,21 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
                 0x008000d2                g_int0Obj
  .data.ret      0x008000d5        0x1 ./HAL_init/hal_init.o
                 0x008000d5                ret
+ .data.new_op_flag
+                0x008000d6        0x1 ./APP_layer/App.o
+                0x008000d6                new_op_flag
  *(.rodata)
  *(.rodata*)
  .rodata.btn_values
-                0x008000d6       0x10 ./HAL_init/Keypad/Keypad_matrix.o
+                0x008000d7       0x10 ./HAL_init/Keypad/Keypad_matrix.o
  .rodata.g_keypadObj
-                0x008000e6        0x9 ./HAL_init/hal_init.o
-                0x008000e6                g_keypadObj
+                0x008000e7        0x9 ./HAL_init/hal_init.o
+                0x008000e7                g_keypadObj
  .rodata.g_lcdObj_4bitMode
-                0x008000ef        0x6 ./HAL_init/hal_init.o
-                0x008000ef                g_lcdObj_4bitMode
+                0x008000f0        0x6 ./HAL_init/hal_init.o
+                0x008000f0                g_lcdObj_4bitMode
  *(.gnu.linkonce.d*)
                 0x008000f6                . = ALIGN (0x2)
- *fill*         0x008000f5        0x1 00
                 0x008000f6                _edata = .
                 0x008000f6                PROVIDE (__data_end, .)
 
@@ -595,8 +597,8 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
                 0x00800122                invalid_num_len_flag
  *(COMMON)
                 0x00800123                PROVIDE (__bss_end, .)
-                0x000030b4                __data_load_start = LOADADDR (.data)
-                0x0000314a                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000030c8                __data_load_start = LOADADDR (.data)
+                0x0000315e                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800123        0x0
                 0x00800123                PROVIDE (__noinit_start, .)
@@ -621,7 +623,7 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
 .signature
  *(.signature*)
 
-.stab           0x00000000     0x3930
+.stab           0x00000000     0x396c
  *(.stab)
  .stab          0x00000000      0x840 ./MCAL_init/Interrupt_Driver/INT_External.o
  .stab          0x00000840      0xc54 ./MCAL_init/DIO_Driver/hal_DIO.o
@@ -630,16 +632,16 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
                                 0x42c (size before relaxing)
  .stab          0x00001638     0x1308 ./HAL_init/ecu_LCD/LCD.o
                                0x14c4 (size before relaxing)
- .stab          0x00002940      0x528 ./HAL_init/Keypad/Keypad_matrix.o
-                                0x6e4 (size before relaxing)
- .stab          0x00002e68      0x204 ./HAL_init/hal_init.o
+ .stab          0x00002940      0x534 ./HAL_init/Keypad/Keypad_matrix.o
+                                0x6f0 (size before relaxing)
+ .stab          0x00002e74      0x204 ./HAL_init/hal_init.o
                                 0x4c8 (size before relaxing)
- .stab          0x0000306c      0x8c4 ./APP_layer/App.o
-                                0xa80 (size before relaxing)
+ .stab          0x00003078      0x8f4 ./APP_layer/App.o
+                                0xab0 (size before relaxing)
 
-.stabstr        0x00000000     0x2257
+.stabstr        0x00000000     0x226b
  *(.stabstr)
- .stabstr       0x00000000     0x2257 ./MCAL_init/Interrupt_Driver/INT_External.o
+ .stabstr       0x00000000     0x226b ./MCAL_init/Interrupt_Driver/INT_External.o
 
 .stab.excl
  *(.stab.excl)

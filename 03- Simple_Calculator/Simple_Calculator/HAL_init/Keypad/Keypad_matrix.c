@@ -74,6 +74,10 @@ Std_ReturnType Keypad_getValue(const keypad_matrix_t* key_obj, uint8* key_value)
     }
     else
     {
+    	while(1)
+    	{
+
+
         for(row_counter=ZERO_INIT; row_counter<KEYPAD_MATRIX_ROWS; row_counter++)
         {            
             for(counter=ZERO_INIT; counter<KEYPAD_MATRIX_ROWS; counter++)
@@ -102,6 +106,7 @@ Std_ReturnType Keypad_getValue(const keypad_matrix_t* key_obj, uint8* key_value)
                     return ret;
                 }
             }
+    	}
     	}
     }
     return ret; 
